@@ -1,0 +1,39 @@
+<html>
+<title>W3.CSS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body>
+
+<div class="w3-container">
+  <b>Course Progress</b>
+
+  <br>
+  <small>Progreso total del curso:  </small>
+
+  <div class="w3-light-grey w3-round-large">
+    <div class="w3-container w3-blue w3-round-large" style="width:{{progreso}}%">{{progreso}}%</div>
+  </div>
+
+
+
+  <br>
+
+
+  <b> Objetivos </b>
+
+
+
+  {{#objetivos}}
+    <div> {{nombre}} </div>
+    <div class="w3-light-grey w3-round-large">
+      <div class="w3-container w3-blue w3-round-large" style="width:{{progreso}}%">{{progreso}}%</div>
+    </div>
+  {{/objetivos}}
+
+
+
+  <br>
+ 
+
+</body>
+</html>
