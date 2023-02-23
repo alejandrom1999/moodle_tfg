@@ -31,9 +31,9 @@ class block_objetivos extends block_base {
         {
 
             $tareas_hechas = 0;
-            $id_objetivo = get_id_objetivo($objetivo_nombre);
-            $numero_tareas_objetivo = numero_tareas($id_objetivo);
-            $tareas = tarea_objetivo_n($objetivo_nombre);
+            $id_objetivo = get_id_objetivo($objetivo_nombre); // id del objetivo
+            $numero_tareas_objetivo = numero_tareas($id_objetivo); // numero de tareas del objetivo
+            $tareas = tarea_objetivo_n($objetivo_nombre); // tareas del objetivo
 
             foreach ($tareas as $t)
             {
@@ -56,16 +56,19 @@ class block_objetivos extends block_base {
                  FROM {objetivo} b_o
                  WHERE b_o.id_course = $COURSE->id";
 
-            $nombres = $DB->get_records_sql($sql1);
+            $nombres = $DB->get_records_sql($sql1); // Obtenemos los nombes de los objetivos
             $num_objetivos = 0;
             $porcentaje_total = 0;
+            // Contamos el numero de objetivos que hay y el porcentaje de cada objetivo de ese usuario.
             foreach ($nombres as $n)
             {
                 $num_objetivos++;
                 $porcentaje_total += porcentaje_objetivo_usuario($n->nombre,$usuario_id);
 
             }
-            return round($num_objetivos/$porcentaje_total,2);;
+
+
+            return round($porcentaje_total/$num_objetivos,2);;
         }
 
 
@@ -83,7 +86,7 @@ class block_objetivos extends block_base {
         /*Lista de objetivos del curso*/
         function lista_objetivos()
         {
-            global $DB, $COURSE;
+            global $DB, $COURSE, $USER;
             $sql1 = "SELECT b_o.nombre
                  FROM {objetivo} b_o
                  WHERE b_o.id_course = $COURSE->id";
@@ -93,13 +96,14 @@ class block_objetivos extends block_base {
             $objetivos = array();
             $i = 0;
 
+
             foreach($nombres as $nom) {
                 $objetivo = array();
                 $objetivo['nombre'] = $nom->nombre;
-                $objetivo['progreso'] = $i*10;
-
+                $objetivo['progreso_objetivo'] = porcentaje_objetivo_usuario($nom->nombre, 3);
                 $objetivos[$i++] = $objetivo;
             }
+
 
             return $objetivos;
         }
@@ -212,8 +216,7 @@ class block_objetivos extends block_base {
         $objetivos = lista_objetivos();
 
         $data['objetivos'] = $objetivos;
-        $data['porcentaje'] = porcentaje_objetivo_usuario('Superar a todos mis compañeros', 3);
-
+        $data['progreso_curso'] = porcentaje_curso_usuario(3);
 
         $this->content->text .= $OUTPUT->render_from_template($templatename, $data);
         return $this->content;

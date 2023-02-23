@@ -11,33 +11,21 @@
   <small>Progreso total del curso:  </small>
 
   <div class="w3-light-grey w3-round-large">
-    <div class="w3-container w3-blue w3-round-large" style="width:{{progreso}}%">{{progreso}}%</div>
+    <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_curso}}%">{{progreso_curso}}%</div>
   </div>
 
 
-
   <br>
 
-<div>{{porcentaje}}</div>
   <b> Objetivos </b>
    {{#objetivos}}
-    <div>
-
-
-    {{nombre}}
-
-
-    </div>
+    <div> {{nombre}} </div>
 
     <div class="w3-light-grey w3-round-large">
-      <div class="w3-container w3-blue w3-round-large" style="width:{{progreso}}%">{{progreso}}%</div>
+      <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">{{progreso_objetivo}}%</div>
     </div>
 
   {{/objetivos}}
-
-    <div>{{1}}</div>
-
-  <br>
 
 
 </body>
