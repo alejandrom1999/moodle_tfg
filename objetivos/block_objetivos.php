@@ -67,6 +67,10 @@ class block_objetivos extends block_base {
 
             }
 
+            if($num_objetivos == 0)
+            {
+                return 0;
+            }
 
             return round($porcentaje_total/$num_objetivos,2);;
         }
@@ -107,29 +111,7 @@ class block_objetivos extends block_base {
 
             return $objetivos;
         }
-        /*Crear un objetivo a partir de un nombre*/
-        function crear_objetivo($nombre) : void
-        {
-            global $COURSE, $DB;
-            $objetivo_n = new stdClass();
-            $objetivo_n->id = mt_rand();
-            $objetivo_n->id_course = $COURSE->id;
-            $objetivo_n->nombre = $nombre;
-            $DB->insert_record(objetivo , $objetivo_n );
-        }
 
-        /*Crear una tarea a partir de una id_objetivo, id_tarea y nombre de la tarea*/
-        function crear_tarea($id_objetivo, $id_tarea, $nombre) : void
-        {
-            global $COURSE, $DB;
-            $tarea_n = new stdClass();
-            $tarea_n->id = mt_rand();
-            $tarea_n->id_tarea = $id_tarea;
-            $tarea_n->id_objetivo = $$id_objetivo;
-            $tarea_n->nombre = $nombre;
-            $DB->insert_record(tarea, $tarea_n);
-
-        }
         /*Obtener el id de un objetivo a partir de su nombre*/
         function get_id_objetivo($nombre_obj): string {
             global $DB, $COURSE;
@@ -215,11 +197,14 @@ class block_objetivos extends block_base {
 
         $objetivos = lista_objetivos();
 
+
         $data['objetivos'] = $objetivos;
         $data['progreso_curso'] = porcentaje_curso_usuario(3);
 
+        $data['formulario'] =  "/blocks/objetivos/form_objetivo.php?curso_actual=$COURSE->fullname";
         $this->content->text .= $OUTPUT->render_from_template($templatename, $data);
         return $this->content;
     }
 }
+
 

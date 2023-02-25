@@ -4,13 +4,41 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <body>
 
+<style>
+
+#style_progress {
+    border-style: solid;
+    border-width: thin;
+}
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: blue;
+  padding: 10px 22px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+
+}
+.button2 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+</style>
+
 <div class="w3-container">
   <b>Course Progress</b>
 
   <br>
-  <small>Progreso total del curso:  </small>
+  <div>Progreso total del curso:  </div>
 
-  <div class="w3-light-grey w3-round-large">
+  <div class="w3-light-grey w3-round-large" id="style_progress">
     <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_curso}}%">{{progreso_curso}}%</div>
   </div>
 
@@ -18,15 +46,24 @@
   <br>
 
   <b> Objetivos </b>
-   {{#objetivos}}
-    <div> {{nombre}} </div>
 
-    <div class="w3-light-grey w3-round-large">
+  {{#objetivos}}
+  <ul>
+
+    <li> {{nombre}} </li>
+    <div class="w3-light-grey w3-round-large" id="style_progress">
       <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">{{progreso_objetivo}}%</div>
     </div>
+  </ul>
 
   {{/objetivos}}
 
+
+  <br>
+
+<a href={{formulario}}>
+   <button class="button button2">Insertar objetivo</button>
+</a>
 
 </body>
 </html>
