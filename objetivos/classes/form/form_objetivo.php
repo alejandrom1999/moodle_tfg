@@ -1,54 +1,48 @@
 <?php
 
 require_once("$CFG->libdir/formslib.php");
-
 class form_objetivo extends moodleform {
 
-    //Add elements to form
-    public function definition()
-    {
-        global $CFG;
+    public function definition() {
+        $mform = $this->_form;
 
-        $mform = $this->_form; // Don't forget the underscore!
+        // Hay que  mostrar opciones adicionales en
+        // un menú desplegable según la selección de un usuario en otro campo del formulario.
+        // Para ello hay que utilizar AJAX.
 
-        function get_cursos(){
-            global $DB;
-            // 1. Obtener los cursos
-            $sql1 = "SELECT c.fullname
-                 FROM {course} c
-                 WHERE c.id > 1";
+        $mform->addElement('header', 'general', 'Creacion de un objetivo');
 
-            $cursos = $DB->get_records_sql($sql1);
-            // 2. Devolverlo en forma de array
-            $nombres = array();
-            $i = 0;
-            foreach($cursos as $nom)
-            {
-                $nombres[$i++] = $nom->fullname;
-            }
+        $mform->addElement('text', 'nombre', 'Introduce el nombre del objetivo');
+        $mform->setType('nombre', PARAM_TEXT);
 
-            return $nombres;
+        $cursos = array("Curso 1", "Curso 2");
 
-        }
-        $curso_actual = optional_param('curso_actual', 'No hay valor', PARAM_TEXT);
-        $cursos = array();
-        $cursos[0] = $curso_actual;
-
-        $mform->addElement('header', 'header', 'Nuevo objetivo');
-        $mform->addElement('text', 'nombre', 'Nombre del objetivo');
-        $mform->setType('nombre', PARAM_NOTAGS);
+        $mform->addElement('select', 'curso', 'Selecciona curso para asignar el objetivo', $cursos);
+        $mform->setDefault('curso', '3');
 
 
-        $mform->addElement('select', 'curso', 'Curso', $cursos);
-        $mform->setDefault('curso', '0');
+        $tareas = array("Tarea 1", "Tarea 2");
 
+        $mform->addElement('select', 'tarea', 'Selecciona tarea para asignar el objetivo', $tareas);
+        $mform->setDefault('tarea', '0');
 
-        $this->add_action_buttons($cancel = true, $submitlabel = 'Insertar objetivo');
+        //$this->page->requires->js_call_amd('core/moodle-forms', 'init_form_autosubmit', array($this->_form->getAttribute('id')));
+
+        $this->add_action_buttons($cancel = true, 'Insertar objetivo');
     }
 
-    //Custom validation should be added here
-    function validation($data, $files) {
-        return array();
+    public function ajax_my_form_callback($data) {
+        // Procesa los datos enviados en la solicitud AJAX y devuelve una respuesta
+        return array('status' => 'ok', 'message' => 'Datos recibidos');
     }
 
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+
+        // add custom validation rules here
+
+        return $errors;
+    }
 }
+
+//require_js('/blocks/objetivos/my_form.js');

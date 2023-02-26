@@ -10,13 +10,15 @@ class form_tarea extends moodleform {
     public function definition()
     {
 
+        $mform = $this->_form; // Don't forget the underscore!
 
-        function get_actividades($id_curso)
+
+        function get_actividades($id_curso): array
         {
             global $DB;
-            $sql2 = "SELECT t.name
-                 FROM {assign} t
-                 WHERE t.course = $id_curso";
+            $sql2 = "SELECT a.name
+                 FROM {assign} a
+                 WHERE a.course = $id_curso";
 
             $tareas = $DB->get_records_sql($sql2);
             $nombres = array();
@@ -28,20 +30,13 @@ class form_tarea extends moodleform {
             }
             return $nombres;
         }
-
-        $mform = $this->_form; // Don't forget the underscore!
-
-        $id_curso = optional_param('id_curso', 'No hay valor', PARAM_TEXT);
+        $id = optional_param('id_curso', 'No hay valor', PARAM_TEXT);
         $nombre_objetivo = optional_param('nombre_objetivo', 'No hay valor', PARAM_TEXT);
 
-        $tareas = get_actividades($id_curso);
+        $tareas = get_actividades($id);
 
         $mform->addElement('select', 'tarea', 'Selecciona tarea para asignar el objetivo', $tareas);
         $mform->setDefault('tarea', '0');
-
-        //$mform->setDefault('id', $id_curso);
-        //$mform->setDefault('name', $nombre_objetivo);
-
 
         $this->add_action_buttons($cancel = true, $submitlabel = 'Finalizar');
     }

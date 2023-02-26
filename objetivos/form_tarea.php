@@ -17,7 +17,7 @@ if($fromform = $mform->is_cancelled())
     redirect($CFG->wwwroot.'/my/');
 } else if ($fromform = $mform->get_data()) {
 
-
+    $tarea = $fromform->tarea;
 
 
 } else {

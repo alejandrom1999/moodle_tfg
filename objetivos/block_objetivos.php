@@ -104,7 +104,7 @@ class block_objetivos extends block_base {
             foreach($nombres as $nom) {
                 $objetivo = array();
                 $objetivo['nombre'] = $nom->nombre;
-                $objetivo['progreso_objetivo'] = porcentaje_objetivo_usuario($nom->nombre, 3);
+                $objetivo['progreso_objetivo'] = porcentaje_objetivo_usuario($nom->nombre, $USER->id);
                 $objetivos[$i++] = $objetivo;
             }
 
@@ -178,6 +178,25 @@ class block_objetivos extends block_base {
             $assignment_name = nombre de la tarea.
 
         */
+        function user_is_student()
+        {
+            global $DB, $USER;
+
+            $records_assig  = $DB->get_records('role_assignments');
+            foreach ($records_assig as $record)
+            {
+                // Comprobamos que el usuario coincide con el actual.
+                if($record->userid === $USER->id)
+                {
+                    // Comprobamos que tiene el rol 5, que es el de ser estudiante.
+                    if($record->roleid == 5)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
         function get_status_tarea_usuario($user, $assignment_name)
         {
             global $DB;
@@ -197,11 +216,19 @@ class block_objetivos extends block_base {
 
         $objetivos = lista_objetivos();
 
+        $es_estudiante = user_is_student();
+
+
+        if ($es_estudiante) {
+            $data['boton_aparece'] = false;
+        } else {
+            $data['boton_aparece'] = true;
+            $data['formulario'] = '/blocks/objetivos/form_objetivo.php';
+        }
 
         $data['objetivos'] = $objetivos;
-        $data['progreso_curso'] = porcentaje_curso_usuario(3);
+        $data['progreso_curso'] = porcentaje_curso_usuario($USER->id);
 
-        $data['formulario'] =  "/blocks/objetivos/form_objetivo.php?curso_actual=$COURSE->fullname";
         $this->content->text .= $OUTPUT->render_from_template($templatename, $data);
         return $this->content;
     }

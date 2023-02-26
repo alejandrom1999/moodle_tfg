@@ -48,22 +48,26 @@
   <b> Objetivos </b>
 
   {{#objetivos}}
-  <ul>
+      <ul>
 
-    <li> {{nombre}} </li>
-    <div class="w3-light-grey w3-round-large" id="style_progress">
-      <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">{{progreso_objetivo}}%</div>
-    </div>
-  </ul>
-
+        <li> {{nombre}} </li>
+        <div class="w3-light-grey w3-round-large" id="style_progress">
+          <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">{{progreso_objetivo}}%</div>
+        </div>
+      </ul>
   {{/objetivos}}
 
 
   <br>
 
-<a href={{formulario}}>
-   <button class="button button2">Insertar objetivo</button>
-</a>
+    {{#boton_aparece}}
+        <a href={{formulario}}>
+           <button class="button button2">Insertar objetivo</button>
+        </a>
+    {{/boton_aparece }}
+
+
+
 
 </body>
 </html>
