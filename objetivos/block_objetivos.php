@@ -7,25 +7,21 @@ class block_objetivos extends block_base {
         global $DB,$COURSE;
 
         $this->title = get_string('objetivos', 'block_objetivos');
-
-        // CUIDADO QUE ESTA ESTO PARA BORRAR LOS OBJETIVOS!!
-
     }
     function hide_header() {
         return true;
     }
 
     public function get_content() {
-        global $OUTPUT, $DB, $COURSE, $USER;
+        global $OUTPUT, $PAGE, $USER;
         $data = [];
-        $templatename = 'block_objetivos/barra_progreso';
+        // Rutas a los archivos.
+        $templatename1 = 'block_objetivos/barra_progreso';
+
 
         if ($this->content !== null) {
             return $this->content;
         }
-
-        $this->content         =  new stdClass;
-        $this->content->text   = '';
 
         function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
         {
@@ -64,7 +60,6 @@ class block_objetivos extends block_base {
             {
                 $num_objetivos++;
                 $porcentaje_total += porcentaje_objetivo_usuario($n->nombre,$usuario_id);
-
             }
 
             if($num_objetivos == 0)
@@ -173,10 +168,6 @@ class block_objetivos extends block_base {
         /*  FUNCION QUE DEVUELVE LA COMPROBACION ( 0 = FALSE, 1 = TRUE) SI SE HA ENTREGADO UNA
             TAREA POR UN USUARIO Y HA SIDO APROBADA
             A PARTIR DEL NOMBRE DE ESEA TAREA.
-
-            $user = user_id.
-            $assignment_name = nombre de la tarea.
-
         */
         function user_is_student()
         {
@@ -218,7 +209,6 @@ class block_objetivos extends block_base {
 
         $es_estudiante = user_is_student();
 
-
         if ($es_estudiante) {
             $data['boton_aparece'] = false;
         } else {
@@ -229,9 +219,14 @@ class block_objetivos extends block_base {
         $data['objetivos'] = $objetivos;
         $data['progreso_curso'] = porcentaje_curso_usuario($USER->id);
 
-        $this->content->text .= $OUTPUT->render_from_template($templatename, $data);
+        $this->content         =  new stdClass;
+        $this->content->text   =  $OUTPUT->render_from_template($templatename1, $data);
+        $this->content->footer = '';
+
         return $this->content;
     }
+
+
 }
 
 
