@@ -55,7 +55,6 @@ function asignar_tarea ($id_objetivo, $id_tarea, $nombre_tarea)
     $tarea_n->nombre = $nombre_tarea;
     $tarea_n->peso = 1;
     $DB->insert_record( tarea, $tarea_n );
-
 }
 
 function get_lista_objetivos()
@@ -90,6 +89,14 @@ function get_id_objetivo($curso_id, $nombre_obj)
     return $sal1;
 }
 
+function function_alert($msg) {
+    echo "<script type='text/javascript'>alert('$msg');</script>";
+}
+function esta_asignada_tarea($id_tarea)
+{
+    global $DB;
+    return $DB->record_exists('tarea', ['id_tarea' => $id_tarea]);
+}
 
 if ($form->is_cancelled()) {
 
@@ -109,8 +116,13 @@ if ($form->is_cancelled()) {
     $nombre_tarea = $lista_tareas[$pos_tarea];
     $id_act = get_id_actividad($nombre_tarea);
 
-    //asignar_tarea($id_obj,$id_act,$nombre_tarea);
-    redirect(new moodle_url('/my/'));
+    // Comprobar que la tarea no esta ya asignada.
+    if(esta_asignada_tarea($id_act)) {
+     //TODO Notificacion para informar que ya se ha asignado una tarea
+
+    }else
+        asignar_tarea($id_obj,$id_act,$nombre_tarea);
+    //redirect(new moodle_url('/my/'));
 } else {
     // Display the form.
     echo $OUTPUT->header();

@@ -70,7 +70,7 @@ if ($form->is_cancelled())
     $nombre_seleccionado = $array_nombres_cursos[$curso_arr_id];
     $id_curso = get_id_curso($nombre_seleccionado);
 
-    //insertar_objetivo($id_curso, $nombre);
+    insertar_objetivo($id_curso, $nombre);
     redirect(new moodle_url('/my/'));
  } else {
     // Display the form.

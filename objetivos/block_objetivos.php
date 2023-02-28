@@ -5,6 +5,7 @@ class block_objetivos extends block_base {
 
     public function init() {
         global $DB,$COURSE;
+        //$DB->delete_records('objetivo');
 
         $this->title = get_string('objetivos', 'block_objetivos');
     }
@@ -29,6 +30,12 @@ class block_objetivos extends block_base {
             $tareas_hechas = 0;
             $id_objetivo = get_id_objetivo($objetivo_nombre); // id del objetivo
             $numero_tareas_objetivo = numero_tareas($id_objetivo); // numero de tareas del objetivo
+
+            if($numero_tareas_objetivo == 0)
+            {
+                return 0;
+            }
+
             $tareas = tarea_objetivo_n($objetivo_nombre); // tareas del objetivo
 
             foreach ($tareas as $t)
@@ -40,7 +47,7 @@ class block_objetivos extends block_base {
 
             }
 
-            return round(($tareas_hechas/$numero_tareas_objetivo) * 100,2);;
+            return round(($tareas_hechas/$numero_tareas_objetivo) * 100,2);
         }
 
         function porcentaje_curso_usuario($usuario_id)
