@@ -9,6 +9,7 @@
 #style_progress {
     border-style: solid;
     border-width: thin;
+
 }
 .button {
   background-color: #4CAF50; /* Green */
@@ -52,7 +53,7 @@
 
         <li> {{nombre}} </li>
         <div class="w3-light-grey w3-round-large" id="style_progress">
-          <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">{{progreso_objetivo}}%</div>
+          <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%,   ">{{progreso_objetivo}}%</div>
         </div>
       </ul>
   {{/objetivos}}
@@ -61,8 +62,11 @@
   <br>
 
     {{#boton_aparece}}
-        <a href={{formulario}}>
+        <a href={{formulario1}}>
            <button class="button button2">Insertar objetivo</button>
+        </a>
+        <a href={{formulario2}}>
+           <button class="button button2">Asignar tarea a objetivo</button>
         </a>
     {{/boton_aparece }}
 

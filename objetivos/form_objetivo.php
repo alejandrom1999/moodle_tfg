@@ -58,7 +58,8 @@ function get_nombres_curso()
     return $nombres;
 }
 
-if ($form->is_cancelled()) {
+if ($form->is_cancelled())
+{
     redirect(new moodle_url('/my/'));
 } else if ($data = $form->get_data()) {
     // Process form data.
@@ -70,8 +71,8 @@ if ($form->is_cancelled()) {
     $id_curso = get_id_curso($nombre_seleccionado);
 
     //insertar_objetivo($id_curso, $nombre);
-    redirect(new moodle_url('/blocks/objetivos/form_asignar_tarea.php', array('id_curso' => $id_curso)));
-} else {
+    redirect(new moodle_url('/my/'));
+ } else {
     // Display the form.
     echo $OUTPUT->header();
 

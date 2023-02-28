@@ -13,7 +13,7 @@ class block_objetivos extends block_base {
     }
 
     public function get_content() {
-        global $OUTPUT, $PAGE, $USER;
+        global $OUTPUT, $USER, $COURSE;
         $data = [];
         // Rutas a los archivos.
         $templatename1 = 'block_objetivos/barra_progreso';
@@ -213,7 +213,8 @@ class block_objetivos extends block_base {
             $data['boton_aparece'] = false;
         } else {
             $data['boton_aparece'] = true;
-            $data['formulario'] = '/blocks/objetivos/form_objetivo.php';
+            $data['formulario1'] = '/blocks/objetivos/form_objetivo.php';
+            $data['formulario2'] = '/blocks/objetivos/form_asignar_tarea.php?id_curso='. $COURSE->id;
         }
 
         $data['objetivos'] = $objetivos;

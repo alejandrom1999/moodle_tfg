@@ -50,7 +50,7 @@ class form_asignar_tarea extends moodleform {
         }
 
         // Cabecera
-        $mform->addElement('header', 'general', 'Asignacion de una tarea');
+        $mform->addElement('header', 'general', 'Asignacion de una tarea a un objetivo');
 
         // Texto objetivo
         $mform->addElement('select', 'objetivo', 'Selecciona objetivo: ', $objetivos_curso);
@@ -59,6 +59,11 @@ class form_asignar_tarea extends moodleform {
         // Campo Cursos
         $mform->addElement('select', 'tarea', 'Selecciona tarea: ', $tareas_curso);
         $mform->setDefault('tarea', '0');
+
+        $mform->addElement('hidden', 'id_curso', 'campo oculto ');
+        $mform->setDefault('id_curso', $id_curso);
+
+
 
         $this->add_action_buttons($cancel = true, 'Asignar tarea a objetivo');
     }
