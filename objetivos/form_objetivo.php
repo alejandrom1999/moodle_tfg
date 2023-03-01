@@ -60,7 +60,8 @@ function get_nombres_curso()
 
 if ($form->is_cancelled())
 {
-    redirect(new moodle_url('/my/'));
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+    redirect(new moodle_url('/course/view.php?id=' . $id_curso . '/'));
 } else if ($data = $form->get_data()) {
     // Process form data.
     $nombre = $data->nombre;
@@ -71,7 +72,8 @@ if ($form->is_cancelled())
     $id_curso = get_id_curso($nombre_seleccionado);
 
     insertar_objetivo($id_curso, $nombre);
-    redirect(new moodle_url('/my/'));
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+    redirect(new moodle_url('/course/view.php?id=' . $id_curso . '/'));
  } else {
     // Display the form.
     echo $OUTPUT->header();

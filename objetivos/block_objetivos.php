@@ -5,7 +5,6 @@ class block_objetivos extends block_base {
 
     public function init() {
         global $DB,$COURSE;
-        //$DB->delete_records('objetivo');
 
         $this->title = get_string('objetivos', 'block_objetivos');
     }
@@ -220,7 +219,7 @@ class block_objetivos extends block_base {
             $data['boton_aparece'] = false;
         } else {
             $data['boton_aparece'] = true;
-            $data['formulario1'] = '/blocks/objetivos/form_objetivo.php';
+            $data['formulario1'] = '/blocks/objetivos/form_objetivo.php?id_curso='. $COURSE->id;
             $data['formulario2'] = '/blocks/objetivos/form_asignar_tarea.php?id_curso='. $COURSE->id;
         }
 

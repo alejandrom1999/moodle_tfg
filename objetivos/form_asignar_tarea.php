@@ -89,9 +89,6 @@ function get_id_objetivo($curso_id, $nombre_obj)
     return $sal1;
 }
 
-function function_alert($msg) {
-    echo "<script type='text/javascript'>alert('$msg');</script>";
-}
 function esta_asignada_tarea($id_tarea)
 {
     global $DB;
@@ -99,8 +96,8 @@ function esta_asignada_tarea($id_tarea)
 }
 
 if ($form->is_cancelled()) {
-
-    redirect(new moodle_url('/my/'));
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+    redirect(new moodle_url('/course/view.php?id=' . $id_curso . '/'));
 } else if ($data = $form->get_data()) {
     $pos_objetivo = $data->objetivo; // Posicion en el desplegable del formulario.
     $pos_tarea = $data->tarea; // Posicion en el desplegable del formulario.
@@ -118,11 +115,14 @@ if ($form->is_cancelled()) {
 
     // Comprobar que la tarea no esta ya asignada.
     if(esta_asignada_tarea($id_act)) {
-     //TODO Notificacion para informar que ya se ha asignado una tarea
+        //Notificacion para informar que ya se ha asignado una tarea
 
-    }else
-        asignar_tarea($id_obj,$id_act,$nombre_tarea);
-    //redirect(new moodle_url('/my/'));
+    } else
+        asignar_tarea($id_obj, $id_act, $nombre_tarea);
+
+
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+    redirect(new moodle_url('/course/view.php?id=' . $id_curso . '/'));
 } else {
     // Display the form.
     echo $OUTPUT->header();
