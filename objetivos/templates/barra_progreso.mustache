@@ -35,15 +35,16 @@
 </style>
 
 <div class="w3-container">
-  <b>Course Progress</b>
 
-  <br>
-  <div>Progreso total del curso:  </div>
+  {{#vista_estudiante}}
+    <b>Course Progress</b>
+    <br>
+      <div>Progreso total del curso:  </div>
 
-  <div class="w3-light-grey w3-round-large" id="style_progress">
-    <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_curso}}%">{{progreso_curso}}%</div>
-  </div>
-
+      <div class="w3-light-grey w3-round-large" id="style_progress">
+        <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_curso}}%">{{progreso_curso}}%</div>
+      </div>
+  {{/vista_estudiante}}
 
   <br>
 
@@ -51,30 +52,32 @@
 
   {{#objetivos}}
       <ul>
-
         <li> {{nombre}} </li>
         <div class="w3-light-grey w3-round-large" id="style_progress">
-          <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">{{progreso_objetivo}}%</div>
+          <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">
+            {{progreso_objetivo}}%
+          </div>
         </div>
-
-
-
-
-
       </ul>
   {{/objetivos}}
 
 
   <br>
 
-    {{#boton_aparece}}
+    {{#vista_profe}}
+        <p>Progresión de los estudiantes de este curso: </p>
+
+         <a href={{url_listado}}>
+            <button class="button button2">Ver listado</button>
+         </a>
+        <p>Inserción y Asignación de tareas y objetivos: </p>
         <a href={{formulario1}}>
            <button class="button button2">Insertar objetivo</button>
         </a>
         <a href={{formulario2}}>
            <button class="button button2">Asignar tarea a objetivo</button>
         </a>
-    {{/boton_aparece }}
+    {{/vista_profe }}
 
 
 

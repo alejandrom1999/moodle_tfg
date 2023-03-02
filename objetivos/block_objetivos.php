@@ -170,11 +170,7 @@ class block_objetivos extends block_base {
 
             return $sal1;
         }
-
-        /*  FUNCION QUE DEVUELVE LA COMPROBACION ( 0 = FALSE, 1 = TRUE) SI SE HA ENTREGADO UNA
-            TAREA POR UN USUARIO Y HA SIDO APROBADA
-            A PARTIR DEL NOMBRE DE ESEA TAREA.
-        */
+        // Comprueba si el usuario actual es estudiante.
         function user_is_student()
         {
             global $DB, $USER;
@@ -216,15 +212,20 @@ class block_objetivos extends block_base {
         $es_estudiante = user_is_student();
 
         if ($es_estudiante) {
-            $data['boton_aparece'] = false;
+            // Vista del estudiante.
+            $data['vista_profe'] = false;
+            $data['vista_estudiante'] = true;
+            $data['objetivos'] = $objetivos;
+            $data['progreso_curso'] = porcentaje_curso_usuario($USER->id);
         } else {
-            $data['boton_aparece'] = true;
+            // Vista del Profesor.
+            $data['vista_profe'] = true;
+            $data['vista_estudiante'] = false;
+            $data['url_listado'] = '/blocks/objetivos/vista_profesor.php';
             $data['formulario1'] = '/blocks/objetivos/form_objetivo.php?id_curso='. $COURSE->id;
             $data['formulario2'] = '/blocks/objetivos/form_asignar_tarea.php?id_curso='. $COURSE->id;
         }
 
-        $data['objetivos'] = $objetivos;
-        $data['progreso_curso'] = porcentaje_curso_usuario($USER->id);
 
         $this->content         =  new stdClass;
         $this->content->text   =  $OUTPUT->render_from_template($templatename1, $data);
