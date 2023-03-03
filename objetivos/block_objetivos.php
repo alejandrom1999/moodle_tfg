@@ -221,7 +221,7 @@ class block_objetivos extends block_base {
             // Vista del Profesor.
             $data['vista_profe'] = true;
             $data['vista_estudiante'] = false;
-            $data['url_listado'] = '/blocks/objetivos/vista_profesor.php';
+            $data['url_listado'] = '/blocks/objetivos/vista_profesor.php?id_curso='. $COURSE->id;
             $data['formulario1'] = '/blocks/objetivos/form_objetivo.php?id_curso='. $COURSE->id;
             $data['formulario2'] = '/blocks/objetivos/form_asignar_tarea.php?id_curso='. $COURSE->id;
         }

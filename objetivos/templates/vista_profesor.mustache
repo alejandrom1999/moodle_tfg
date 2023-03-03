@@ -1,12 +1,61 @@
+<style>
 
-    {{#estudiantes}}
+table {
+  table-layout: fixed;
+  width: 100%;
+  border: 1px solid #000;
+}
 
 
-          <p>{{nombre}}</p>
+th, td {
+  padding: 20px;
+  border: 1px solid #000;
+}
 
-    {{/estudiantes}}
+</style>
 
 
+{{#objetivos}}
+
+    <div>{{nombre_objetivo}} </div>
+
+{{/objetivos}}
+
+<br>
+
+<table summary="Progreso de estudiantes">
+
+  <thead>
+    <tr>
+      <th scope="col">Estudiante</th>
+      <th scope="col">Objetivo 1</th>
+      <th scope="col">Objetivo 2</th>
+      <th scope="col">Objetivo 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td scope="row">Buzzcocks</td>
+      <td>1976</td>
+      <td>9</td>
+      <td>Ever fallen in love (with someone you shouldn't've)</td>
+    </tr>
+    <tr>
+      <td scope="row">The Clash</td>
+      <td>1976</td>
+      <td>6</td>
+      <td>London Calling</td>
+    </tr>
+
+    <tr>
+      <td scope="row">The Stranglers</td>
+      <td>1974</td>
+      <td>17</td>
+      <td>No More Heroes</td>
+    </tr>
+  </tbody>
+
+</table>
 
 
 
