@@ -38,6 +38,21 @@ function get_id_curso($curso_name)
     return $id_curso;
 
 }
+function get_nombre_curso($id_curso)
+{
+    global $DB;
+    $records_course = $DB->get_records('course');
+    foreach ($records_course as $c )
+    {
+        if($c->id === $id_curso)
+        {
+            $name = $c->fullname;
+        }
+    }
+
+    return $name;
+
+}
 function get_nombres_curso()
 {
     global $DB;

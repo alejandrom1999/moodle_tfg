@@ -88,6 +88,7 @@ class block_objetivos extends block_base {
 
             return $numero;
          }
+
         /*Lista de objetivos del curso*/
         function lista_objetivos()
         {

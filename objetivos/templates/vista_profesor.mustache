@@ -15,46 +15,28 @@ th, td {
 </style>
 
 
-{{#objetivos}}
-
-    <div>{{nombre_objetivo}} </div>
-
-{{/objetivos}}
-
-<br>
-
-<table summary="Progreso de estudiantes">
-
+<table>
   <thead>
     <tr>
-      <th scope="col">Estudiante</th>
-      <th scope="col">Objetivo 1</th>
-      <th scope="col">Objetivo 2</th>
-      <th scope="col">Objetivo 3</th>
+        <th scope="col">Estudiante</th>
+        {{#nombres_objetivos}}
+            <th scope="col">  {{nombre_objetivo}} </th>
+        {{/nombres_objetivos}}
     </tr>
   </thead>
+
+{{#progreso}}
   <tbody>
     <tr>
-      <td scope="row">Buzzcocks</td>
-      <td>1976</td>
-      <td>9</td>
-      <td>Ever fallen in love (with someone you shouldn't've)</td>
-    </tr>
-    <tr>
-      <td scope="row">The Clash</td>
-      <td>1976</td>
-      <td>6</td>
-      <td>London Calling</td>
+      <td scope="row">{{nombre_estudiante}}</td>
+      {{#progreso}}
+        <td>{{progreso_user}}%</td>
+      {{/progreso}}
     </tr>
 
-    <tr>
-      <td scope="row">The Stranglers</td>
-      <td>1974</td>
-      <td>17</td>
-      <td>No More Heroes</td>
-    </tr>
   </tbody>
 
+{{/progreso}}
 </table>
 
 

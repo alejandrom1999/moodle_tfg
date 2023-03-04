@@ -4,8 +4,11 @@ require_once("$CFG->libdir/formslib.php");
 class form_objetivo extends moodleform {
 
     public function definition() {
+
         $mform = $this->_form;
         $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+
+
 
         // Cabecera
         $mform->addElement('header', 'general', 'Creacion de un objetivo');
@@ -15,7 +18,8 @@ class form_objetivo extends moodleform {
         $mform->addRule('nombre', null, 'required', null, 'client');
 
         // Campo Cursos
-        $mform->addElement('select', 'curso', 'Selecciona curso para asignar el objetivo', get_nombres_curso());
+
+        $mform->addElement('select', 'curso', 'Selecciona curso para asignar el objetivo', array(get_nombre_curso($id_curso)));
         $mform->setDefault('curso', '0');
 
         $mform->addElement('hidden', 'id_curso', 'campo oculto ');

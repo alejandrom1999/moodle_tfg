@@ -66,6 +66,21 @@ function numero_tareas($objetivo_id)
 
     return $numero;
 }
+
+function numero_objetivos()
+{
+    global $DB;
+    $count = 0;
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+    $nombres_objetivos = $DB->get_records('objetivo', array('id_course' => $id_curso));
+
+    foreach ($nombres_objetivos as $n)
+    {
+        $count++;
+    }
+
+    return $count;
+}
 function get_id_objetivo($nombre_obj): string {
     global $DB;
 
@@ -131,7 +146,6 @@ function get_status_tarea_usuario($user, $assignment_name)
 
     return $DB->record_exists_sql($sql);;
 }
-
 function get_id_estudiante($nombre_est): string {
     global $DB;
 
@@ -171,60 +185,65 @@ function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
 
     return round(($tareas_hechas/$numero_tareas_objetivo) * 100,2);
 }
-function informacion_tabla()
+function nombres_objetivos()
 {
     global $DB;
-    // Parametro de la URL
     $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
-
-    // Consulta para obtener los nombres de los objetivos
     $nombres_objetivos = $DB->get_records('objetivo', array('id_course' => $id_curso));
 
-    // Obtengo los nombres de los estudiantes
-    $nombres_estudiantes = get_names_estudiantes();
-
-    // Obtengo los ids de los estudiantes
-    $ids_estudiantes = get_user_ids_estudiantes();
-
-    $objetivos = array();
     $i = 0;
-    foreach($nombres_estudiantes as $nom) {
-
-        $objetivo = array();
-        $objetivo['nombre_estudiante'] = $nom;
-        $id_est = get_id_estudiante($nom);
-
-        // Por cada estudiante, obtener su porcentaje de cada objetivo
-        $j = 0;
-        foreach ($nombres_objetivos as $nombre_objetivo_n) {
-            $datos_estudiante = array();
-            $progress = porcentaje_objetivo_usuario($nombre_objetivo_n->nombre, $id_est);
-
-            $datos_estudiante['nombre_objetivo'] = $nombre_objetivo_n->nombre;
-            $datos_estudiante['porcentaje'] = $progress;
-            $objetivo[$i][$j++] = $datos_estudiante;
-        }
-
-        $objetivos[$i++] = $objetivo;
+    $objetivos = array();
+    foreach ($nombres_objetivos as $nombre_objetivo_n) {
+        $nombres = array();
+        $nombres['nombre_objetivo'] =  $nombre_objetivo_n->nombre;
+        $objetivos[$i++] = $nombres;
     }
-
-
     return $objetivos;
 }
 
+function progreso_objetivos()
+{
+    global $DB;
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+
+    $nombres_objetivos = $DB->get_records('objetivo', array('id_course' => $id_curso));
+    $ids_estudiantes = get_user_ids_estudiantes();
+    $nombres_estudiantes = get_names_estudiantes();
+
+    $objetivos2 = array();
+    $i = 0;
+    foreach ($ids_estudiantes as $id_est)
+    {
+        $j = 0;
+        $objetivos1 = array();
+        $objetivos1['nombre_estudiante'] = $nombres_estudiantes[$i];
+        foreach ($nombres_objetivos as $nombre_objetivo_n) {
+            $progreso = array();
+            $progreso['progreso_user'] =  porcentaje_objetivo_usuario($nombre_objetivo_n->nombre,$id_est);
+            $objetivos1['progreso'][$j++] = $progreso;
+        }
+        $objetivos2[$i++] = $objetivos1;
+    }
+
+
+    return $objetivos2 ;
+}
+
+
 echo $OUTPUT->header();
-
-
 
 $templatename = 'block_objetivos/vista_profesor';
 $datos = [];
 
 
-$info = informacion_tabla();
+
+$nombres_objetivos = nombres_objetivos();
+
+$progreso = progreso_objetivos();
 
 
-$datos['objetivos'] =  $info;
-
+$datos['nombres_objetivos'] =  $nombres_objetivos;
+$datos['progreso'] = $progreso;
 echo $OUTPUT->render_from_template($templatename, $datos);
 
 echo $OUTPUT->footer();
