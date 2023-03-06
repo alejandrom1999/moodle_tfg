@@ -49,7 +49,6 @@ function get_names_estudiantes()
     {
         if($tabla_n->id == $ids_estudiantes[$i])
         {
-
             $nombres[$i++] = $tabla_n->firstname;
         }
     }
@@ -65,21 +64,6 @@ function numero_tareas($objetivo_id)
                     WHERE t.id_objetivo = $objetivo_id");
 
     return $numero;
-}
-
-function numero_objetivos()
-{
-    global $DB;
-    $count = 0;
-    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
-    $nombres_objetivos = $DB->get_records('objetivo', array('id_course' => $id_curso));
-
-    foreach ($nombres_objetivos as $n)
-    {
-        $count++;
-    }
-
-    return $count;
 }
 function get_id_objetivo($nombre_obj): string {
     global $DB;
@@ -145,21 +129,6 @@ function get_status_tarea_usuario($user, $assignment_name)
                     as_s.grade >= 50 ";
 
     return $DB->record_exists_sql($sql);;
-}
-function get_id_estudiante($nombre_est): string {
-    global $DB;
-
-    $sql_1 = $DB->get_records('user', array('firstname' => $nombre_est));
-
-    $sal1 = '';
-    foreach ($sql_1 as $n)
-    {
-        if($n->firstname === $nombre_est){
-            $sal1 = $n->id;
-        }
-    }
-
-    return $sal1;
 }
 function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
 {

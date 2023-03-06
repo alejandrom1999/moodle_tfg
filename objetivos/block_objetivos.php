@@ -5,6 +5,7 @@ class block_objetivos extends block_base {
 
     public function init() {
         global $DB,$COURSE;
+        $DB->delete_records('objetivo', array('id' => 5));
 
         $this->title = get_string('objetivos', 'block_objetivos');
     }
@@ -30,6 +31,7 @@ class block_objetivos extends block_base {
             $id_objetivo = get_id_objetivo($objetivo_nombre); // id del objetivo
             $numero_tareas_objetivo = numero_tareas($id_objetivo); // numero de tareas del objetivo
 
+
             if($numero_tareas_objetivo == 0)
             {
                 return 0;
@@ -39,16 +41,15 @@ class block_objetivos extends block_base {
 
             foreach ($tareas as $t)
             {
-                if(get_status_tarea_usuario($usuario_id, $t) == 1)
+                // Comprobamos que la tarea se ha completado o no.
+                if(get_status_tarea_usuario($usuario_id, $t) == 1 )
                 {
                     $tareas_hechas++;
                 }
-
             }
 
             return round(($tareas_hechas/$numero_tareas_objetivo) * 100,2);
         }
-
         function porcentaje_curso_usuario($usuario_id)
         {
             global $DB;
@@ -76,11 +77,11 @@ class block_objetivos extends block_base {
             return round($porcentaje_total/$num_objetivos,2);;
         }
 
-
         /* Numero de tareas de un objetivo */
         function numero_tareas($objetivo_id)
         {
             global $DB;
+
             $numero = $DB->count_records_sql("
                     SELECT COUNT(*) 
                     FROM {tarea} t 
@@ -118,7 +119,8 @@ class block_objetivos extends block_base {
         function get_id_objetivo($nombre_obj): string {
             global $DB, $COURSE;
             $sql = " SELECT *
-                     FROM {objetivo} o WHERE o.id_course = $COURSE->id";
+                     FROM {objetivo} o 
+                     WHERE o.id_course = $COURSE->id";
             $sql_1 = $DB->get_records_sql($sql);
 
             $sal1 = '';
@@ -155,10 +157,25 @@ class block_objetivos extends block_base {
             return $arr_tarea;
 
         }
+
         /*FUNCION QUE DEVUELVE LA ID DE UNA ACTIVIDAD EN BASE A SU NOMBRE*/
         function get_id_actividad($nombre_actividad)
         {
             global $DB;
+
+            // Comprobar si la actividad es un quiz o un assign:
+            if($DB->record_exists('quiz', array('name' => $nombre_actividad)))
+            {
+                $records_quiz = $DB->get_records('quiz');
+                foreach ($records_quiz as $record)
+                {
+                    if($record->name === $nombre_actividad)
+                    {
+                        $sal1 = $record->id;
+                    }
+                }
+                return $sal1;
+            }
 
             $records_assign = $DB->get_records('assign');
             foreach ($records_assign as $record)
@@ -171,6 +188,7 @@ class block_objetivos extends block_base {
 
             return $sal1;
         }
+
         // Comprueba si el usuario actual es estudiante.
         function user_is_student()
         {
@@ -191,21 +209,32 @@ class block_objetivos extends block_base {
             }
             return false;
         }
-        function get_status_tarea_usuario($user, $assignment_name)
+        function get_status_tarea_usuario($user_id, $assignment_name)
         {
             global $DB;
 
             $id_tar = get_id_actividad($assignment_name);
 
-            $sql = "SELECT * 
+            if($DB->record_exists('quiz', array('id' => $id_tar)))
+            {
+                $sql = "SELECT * 
+                    FROM {quiz_grades} as_s
+                    WHERE as_s.userid = $user_id 
+                    AND
+                    as_s.quiz = $id_tar
+                    AND
+                    as_s.grade >= 50 ";
+            } else {
+                $sql = "SELECT * 
                     FROM {assign_grades} as_s
-                    WHERE as_s.userid = $user 
+                    WHERE as_s.userid = $user_id 
                     AND
                     as_s.assignment = $id_tar
                     AND
                     as_s.grade >= 50 ";
+            }
 
-            return $DB->record_exists_sql($sql);;
+            return $DB->record_exists_sql($sql);
         }
 
         $objetivos = lista_objetivos();

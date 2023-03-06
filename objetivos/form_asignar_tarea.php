@@ -15,6 +15,20 @@ function get_id_actividad($nombre_actividad)
 {
     global $DB;
 
+    // Comprobar si la actividad es un quiz o un assign:
+    if($DB->record_exists('quiz', array('name' => $nombre_actividad)))
+    {
+        $records_quiz = $DB->get_records('quiz');
+        foreach ($records_quiz as $record)
+        {
+            if($record->name === $nombre_actividad)
+            {
+                $sal1 = $record->id;
+            }
+        }
+        return $sal1;
+    }
+
     $records_assign = $DB->get_records('assign');
     foreach ($records_assign as $record)
     {
@@ -26,13 +40,13 @@ function get_id_actividad($nombre_actividad)
 
     return $sal1;
 }
-
 function get_tareas($curso_id)
 {
     global $DB;
 
     // 1. Obtener lista de tareas de la BBDD.
     $nombres = $DB->get_records('assign', ['course' => $curso_id]);
+    $quizes = $DB->get_records('quiz', ['course' => $curso_id]);
 
     $tareas = array();
     $i = 0;
@@ -40,6 +54,11 @@ function get_tareas($curso_id)
     foreach($nombres as $nom)
     {
         $tareas[$i++] = $nom->name;
+    }
+
+    foreach($quizes as $q)
+    {
+        $tareas[$i++] = $q->name;
     }
 
     return $tareas;
@@ -56,12 +75,12 @@ function asignar_tarea ($id_objetivo, $id_tarea, $nombre_tarea)
     $tarea_n->peso = 1;
     $DB->insert_record( tarea, $tarea_n );
 }
-
 function get_lista_objetivos()
 {
     global $DB;
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
 
-    $objetivos = $DB->get_records('objetivo');
+    $objetivos = $DB->get_records('objetivo', array('id_course' => $id_curso));
     $sal1 = array();
     $i = 0;
     foreach ($objetivos as $obj)
@@ -71,7 +90,6 @@ function get_lista_objetivos()
 
     return $sal1;
 }
-
 function get_id_objetivo($curso_id, $nombre_obj)
 {
     global $DB, $COURSE;
@@ -88,7 +106,6 @@ function get_id_objetivo($curso_id, $nombre_obj)
 
     return $sal1;
 }
-
 function esta_asignada_tarea($id_tarea)
 {
     global $DB;
@@ -101,28 +118,28 @@ if ($form->is_cancelled()) {
 } else if ($data = $form->get_data()) {
     $pos_objetivo = $data->objetivo; // Posicion en el desplegable del formulario.
     $pos_tarea = $data->tarea; // Posicion en el desplegable del formulario.
-    $id_curso = $data->id_curso; // Variable pasada por campo oculto.
+
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
 
     // Obtener id de un objetivo en base a la seleccion de la lista en el formulario.
-    $lista_objetivos = get_lista_objetivos(); // Obtengo la lista de todos los objetivos.
+    $lista_objetivos = get_lista_objetivos(); // Obtengo la lista de todos los objetivos del curso.
     $nombre_objetivo = $lista_objetivos[$pos_objetivo]; // Filtro el objetivo seleccionado de la lista de objetivos
     $id_obj = get_id_objetivo($id_curso, $nombre_objetivo); // Id real del objetivo seleccionado.
 
-    // Obtener el id de una tarea (actividad) en base a la seleccion de la lista en el formulario.
+    // Obtener el id de una tarea (actividad/quiz) en base a la seleccion de la lista en el formulario.
     $lista_tareas = get_tareas($id_curso);
     $nombre_tarea = $lista_tareas[$pos_tarea];
+
     $id_act = get_id_actividad($nombre_tarea);
 
     // Comprobar que la tarea no esta ya asignada.
     if(esta_asignada_tarea($id_act)) {
         //Notificacion para informar que ya se ha asignado una tarea
 
-    } else
+    } else {
         asignar_tarea($id_obj, $id_act, $nombre_tarea);
-
-
-    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
-    redirect(new moodle_url('/course/view.php?id=' . $id_curso . '/'));
+    }
+     redirect(new moodle_url('/course/view.php?id=' . $id_curso . '/'));
 } else {
     // Display the form.
     echo $OUTPUT->header();

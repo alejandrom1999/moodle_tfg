@@ -1,17 +1,13 @@
 <style>
-
 table {
   table-layout: fixed;
   width: 100%;
   border: 1px solid #000;
 }
-
-
 th, td {
   padding: 20px;
   border: 1px solid #000;
 }
-
 </style>
 
 
@@ -20,23 +16,36 @@ th, td {
     <tr>
         <th scope="col">Estudiante</th>
         {{#nombres_objetivos}}
-            <th scope="col">  {{nombre_objetivo}} </th>
+            {{#nombre_objetivo}}
+                <th scope="col"> {{nombre_objetivo}} </th>
+            {{/nombre_objetivo}}
+
         {{/nombres_objetivos}}
     </tr>
   </thead>
 
-{{#progreso}}
+
   <tbody>
+
+  {{#progreso}}
     <tr>
       <td scope="row">{{nombre_estudiante}}</td>
       {{#progreso}}
-        <td>{{progreso_user}}%</td>
+
+        {{#progreso_user}}
+            <td>{{progreso_user}}%</td>
+        {{/progreso_user}}
+
+        {{^progreso_user}}
+            <td>0%</td>
+        {{/progreso_user}}
+
       {{/progreso}}
     </tr>
-
+    {{/progreso}}
   </tbody>
 
-{{/progreso}}
+
 </table>
 
 

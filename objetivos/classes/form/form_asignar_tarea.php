@@ -8,6 +8,7 @@ class form_asignar_tarea extends moodleform {
 
         // 1. Obtener lista de tareas de la BBDD.
         $nombres = $DB->get_records('assign', ['course' => $curso_id]);
+        $quizes = $DB->get_records('quiz', ['course' => $curso_id]);
 
         $tareas = array();
         $i = 0;
@@ -15,6 +16,11 @@ class form_asignar_tarea extends moodleform {
         foreach($nombres as $nom)
         {
             $tareas[$i++] = $nom->name;
+        }
+
+        foreach($quizes as $q)
+        {
+            $tareas[$i++] = $q->name;
         }
 
         return $tareas;
@@ -41,12 +47,24 @@ class form_asignar_tarea extends moodleform {
 
         $tareas_curso = $this->get_tareas($id_curso);
 
+        // Si no hay objetivos en el curso...
         if(empty($objetivos_curso)){
-            $objetivos_curso[0] = "No hay elementos";
+            // Si no hay tareas...
+            if(!empty($tareas_curso)){
+                unset($tareas_curso);
+                $tareas_curso[0] = "No se puede asignar";
+            }
+            $objetivos_curso[0] = "No hay objetivos";
         }
 
+        // Si no hay tareas...
         if(empty($tareas_curso)){
-            $tareas_curso[0] = "No hay elementos";
+            $tareas_curso[0] = "No hay tareas";
+            // Si hay objetivos...
+            if(!empty($objetivos_curso)){
+                unset($objetivos_curso);
+                $objetivos_curso[0] = "No se puede asignar";
+            }
         }
 
         // Cabecera
@@ -64,8 +82,8 @@ class form_asignar_tarea extends moodleform {
         $mform->setDefault('id_curso', $id_curso);
 
 
-
-        $this->add_action_buttons($cancel = true, 'Asignar tarea a objetivo');
+        if(!in_array('No', $objetivos_curso) && !in_array('No', $tareas_curso))
+            $this->add_action_buttons($cancel = true, 'Asignar tarea a objetivo');
     }
 
 
