@@ -141,14 +141,17 @@ function get_status_tarea_usuario($user_id, $assignment_name)
 }
 function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
 {
+
     global $DB;
-    $pesos_suma = 0;
-    $tarea_compleja = 1;
+    $pesos_tareas_objetivo = 0;
+    $pesos_tarea_completada = 0;
+
 
     $id = get_id_objetivo($objetivo_nombre);
     $tareas_actividades = $DB->get_records('tarea', array('id_objetivo' => $id));
     $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
     $numero_tareas_objetivo = numero_tareas($id); // numero de tareas del objetivo
+
 
     if($numero_tareas_objetivo == 0)
     {
@@ -156,29 +159,25 @@ function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
     }
     // Parte de actividades.
     foreach($tareas_actividades as $nom) {
+
+        $pesos_tareas_objetivo += $nom->peso;
         if(get_status_tarea_usuario($usuario_id, $nom->nombre) == 1 )
         {
-            $pesos_suma += $nom->peso;
-            if($nom->peso > 1)
-            {
-                $tarea_compleja *= $nom->peso;
-            }
+            $pesos_tarea_completada += $nom->peso;
         }
-
     }
-    foreach($tareas_quizes as $tar) {
 
+
+    foreach($tareas_quizes as $tar) {
+        $pesos_tareas_objetivo += $nom->peso;
         if(get_status_tarea_usuario($usuario_id, $tar->nombre) == 1 )
         {
-            $pesos_suma += $tar->peso;
-            if($tar->peso > 1)
-            {
-                $tarea_compleja *= $tar->peso;
-            }
+            $pesos_tarea_completada += $tar->peso;
         }
     }
 
-    return round(($pesos_suma / ($numero_tareas_objetivo * $tarea_compleja )) * 100,2);
+
+    return round(($pesos_tarea_completada / $pesos_tareas_objetivo ) * 100,2);
 }
 function nombres_objetivos()
 {
