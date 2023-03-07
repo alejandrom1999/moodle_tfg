@@ -15,6 +15,8 @@ class block_objetivos extends block_base {
     public function get_content() {
         global $OUTPUT, $USER, $COURSE;
         $data = [];
+
+
         // Rutas a los archivos.
         $templatename1 = 'block_objetivos/barra_progreso';
 
@@ -22,33 +24,53 @@ class block_objetivos extends block_base {
         if ($this->content !== null) {
             return $this->content;
         }
-
         function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
         {
 
-            $tareas_hechas = 0;
-            $id_objetivo = get_id_objetivo($objetivo_nombre); // id del objetivo
-            $numero_tareas_objetivo = numero_tareas($id_objetivo); // numero de tareas del objetivo
+            global $DB;
+            $pesos_suma = 0;
+            $tarea_compleja = 1;
+
+            $id = get_id_objetivo($objetivo_nombre);
+            $tareas_actividades = $DB->get_records('tarea', array('id_objetivo' => $id));
+            $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
+            $numero_tareas_objetivo = numero_tareas($id); // numero de tareas del objetivo
 
 
             if($numero_tareas_objetivo == 0)
             {
                 return 0;
             }
+            // Parte de actividades.
+            foreach($tareas_actividades as $nom) {
 
-            $tareas = tarea_objetivo_n($objetivo_nombre); // tareas del objetivo
-
-
-            foreach ($tareas as $t)
-            {
-                // Comprobamos que la tarea se ha completado o no.
-                if(get_status_tarea_usuario($usuario_id, $t) == 1 )
+                if(get_status_tarea_usuario($usuario_id, $nom->nombre) == 1 )
                 {
-                    $tareas_hechas++;
+
+                    $pesos_suma += $nom->peso;
+
+                    if($nom->peso > 1)
+                    {
+                        $tarea_compleja *= $nom->peso;
+                    }
                 }
             }
 
-            return round(($tareas_hechas/$numero_tareas_objetivo) * 100,2);
+
+            foreach($tareas_quizes as $tar) {
+
+                if(get_status_tarea_usuario($usuario_id, $tar->nombre) == 1 )
+                {
+                    $pesos_suma += $tar->peso;
+                    if($tar->peso > 1)
+                    {
+                        $tarea_compleja *= $tar->peso;
+                    }
+                }
+            }
+
+
+            return round(($pesos_suma / ($numero_tareas_objetivo * $tarea_compleja )) * 100,2);
         }
         function porcentaje_curso_usuario($usuario_id)
         {
@@ -259,6 +281,7 @@ class block_objetivos extends block_base {
             $data['formulario1'] = '/blocks/objetivos/form_objetivo.php?id_curso='. $COURSE->id;
             $data['formulario2'] = '/blocks/objetivos/form_asignar_tarea.php?id_curso='. $COURSE->id;
         }
+
 
 
         $this->content         =  new stdClass;

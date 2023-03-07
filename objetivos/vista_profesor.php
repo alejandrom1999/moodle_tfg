@@ -89,32 +89,6 @@ function get_id_objetivo($nombre_obj): string {
 
     return $sal1;
 }
-function tarea_objetivo_n($nombre_objetivo)
-{
-    global $DB;
-    // 0. Obtenemos el id del objetivo.
-    $id = get_id_objetivo($nombre_objetivo);
-
-    // 1. Incluimos las tareas que sean actividades
-    $tareas_actividades = $DB->get_records('tarea', array('id_objetivo' => $id));
-
-    $arr_tarea = array();
-    $i = 0;
-
-    foreach($tareas_actividades as $nom) {
-        $arr_tarea[$i++] = $nom->nombre;
-    }
-
-    // 2. Incluimos a la lista las tareas que sean quizes.
-    $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
-
-    foreach($tareas_quizes as $tar) {
-        $arr_tarea[$i++] = $tar->nombre;
-    }
-
-    return $arr_tarea;
-
-}
 function get_id_actividad($nombre_actividad)
 {
     global $DB;
@@ -167,31 +141,44 @@ function get_status_tarea_usuario($user_id, $assignment_name)
 }
 function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
 {
+    global $DB;
+    $pesos_suma = 0;
+    $tarea_compleja = 1;
 
-    $tareas_hechas = 0;
-    $id_objetivo = get_id_objetivo($objetivo_nombre); // id del objetivo
-    $numero_tareas_objetivo = numero_tareas($id_objetivo); // numero de tareas del objetivo
-
-
+    $id = get_id_objetivo($objetivo_nombre);
+    $tareas_actividades = $DB->get_records('tarea', array('id_objetivo' => $id));
+    $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
+    $numero_tareas_objetivo = numero_tareas($id); // numero de tareas del objetivo
 
     if($numero_tareas_objetivo == 0)
     {
         return 0;
     }
-
-    $tareas = tarea_objetivo_n($objetivo_nombre); // tareas del objetivo
-
-    foreach ($tareas as $t)
-    {
-
-        // Comprobamos que la tarea se ha completado o no.
-        if(get_status_tarea_usuario($usuario_id, $t) == 1 )
+    // Parte de actividades.
+    foreach($tareas_actividades as $nom) {
+        if(get_status_tarea_usuario($usuario_id, $nom->nombre) == 1 )
         {
-            $tareas_hechas++;
+            $pesos_suma += $nom->peso;
+            if($nom->peso > 1)
+            {
+                $tarea_compleja *= $nom->peso;
+            }
+        }
+
+    }
+    foreach($tareas_quizes as $tar) {
+
+        if(get_status_tarea_usuario($usuario_id, $tar->nombre) == 1 )
+        {
+            $pesos_suma += $tar->peso;
+            if($tar->peso > 1)
+            {
+                $tarea_compleja *= $tar->peso;
+            }
         }
     }
 
-    return round(($tareas_hechas/$numero_tareas_objetivo) * 100,2);
+    return round(($pesos_suma / ($numero_tareas_objetivo * $tarea_compleja )) * 100,2);
 }
 function nombres_objetivos()
 {

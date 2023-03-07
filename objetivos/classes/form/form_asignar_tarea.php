@@ -78,7 +78,12 @@ class form_asignar_tarea extends moodleform {
         $mform->addElement('select', 'tarea', 'Selecciona tarea: ', $tareas_curso);
         $mform->setDefault('tarea', '0');
 
-        $mform->addElement('hidden', 'id_curso', 'campo oculto ');
+        // Texto objetivo
+        $mform->addElement('text', 'peso', 'Introduce el peso del objetivo');
+        $mform->setDefault('peso', 'Ejemplo: 20,30 (porcentajes) ');
+
+
+        $mform->addElement('hidden', 'id_curso', 'campo oculto');
         $mform->setDefault('id_curso', $id_curso);
 
 

@@ -61,7 +61,7 @@ function get_tareas($curso_id)
 
     return $tareas;
 }
-function asignar_tarea ($id_objetivo, $id_tarea, $nombre_tarea)
+function asignar_tarea ($id_objetivo, $id_tarea, $nombre_tarea, $peso)
 {
     global $DB;
 
@@ -70,10 +70,10 @@ function asignar_tarea ($id_objetivo, $id_tarea, $nombre_tarea)
     $tarea_n->id_tarea = $id_tarea;
     $tarea_n->id_objetivo = $id_objetivo;
     $tarea_n->nombre = $nombre_tarea;
-    $tarea_n->peso = 1;
+    $tarea_n->peso = $peso;
     $DB->insert_record( tarea, $tarea_n );
 }
-function asignar_quiz($id_objetivo, $id_quiz, $nombre_quiz)
+function asignar_quiz($id_objetivo, $id_quiz, $nombre_quiz, $peso)
 {
     global $DB;
 
@@ -82,7 +82,7 @@ function asignar_quiz($id_objetivo, $id_quiz, $nombre_quiz)
     $quiz_n->$id_quiz = $id_quiz;
     $quiz_n->id_objetivo = $id_objetivo;
     $quiz_n->nombre = $nombre_quiz;
-    $quiz_n->peso = 1;
+    $quiz_n->peso = $peso;
     $DB->insert_record( quiz_asignados, $quiz_n );
 }
 function get_lista_objetivos()
@@ -139,6 +139,9 @@ if ($form->is_cancelled()) {
 } else if ($data = $form->get_data()) {
     $pos_objetivo = $data->objetivo; // Posicion en el desplegable del formulario.
     $pos_tarea = $data->tarea; // Posicion en el desplegable del formulario.
+    $peso = $data->peso; // Porcentaje de peso del objetivo.
+    $peso /= 10;
+
 
     $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
 
@@ -160,7 +163,7 @@ if ($form->is_cancelled()) {
         {
             // No debemos meterla.
         } else {
-            asignar_quiz($id_obj, $id_act, $nombre_tarea);
+            asignar_quiz($id_obj, $id_act, $nombre_tarea, $peso);
         }
     // Ruta 2: Ruta restante: La tarea es una actividad.
     }else {
@@ -169,7 +172,7 @@ if ($form->is_cancelled()) {
             //Notificacion para informar que ya se ha asignado una tarea
 
         } else {
-            asignar_tarea($id_obj, $id_act, $nombre_tarea);
+            asignar_tarea($id_obj, $id_act, $nombre_tarea, $peso);
         }
     }
 
