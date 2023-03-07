@@ -11,28 +11,26 @@ $PAGE->set_heading('Asignar una tarea ');
 
 $form = new form_asignar_tarea();
 
+// Comprueba si existe en la tabla de quiz esa tarea seleccionada.
+function check_if_quiz($nombre_quiz)
+{
+    global $DB;
+    return $DB->record_exists('quiz', array('name' => $nombre_quiz));
+}
 function get_id_actividad($nombre_actividad)
 {
     global $DB;
-
     // Comprobar si la actividad es un quiz o un assign:
     if($DB->record_exists('quiz', array('name' => $nombre_actividad)))
     {
-        $records_quiz = $DB->get_records('quiz');
-        foreach ($records_quiz as $record)
-        {
-            if($record->name === $nombre_actividad)
-            {
-                $sal1 = $record->id;
-            }
-        }
-        return $sal1;
+        $records = $DB->get_records('quiz');
+    } else {
+        $records = $DB->get_records('assign');
     }
-
-    $records_assign = $DB->get_records('assign');
-    foreach ($records_assign as $record)
+    $sal1 = 0;
+    foreach ($records as $record)
     {
-        if($record->name === $nombre_actividad)
+        if(strcmp($record->name,$nombre_actividad) == 0)
         {
             $sal1 = $record->id;
         }
@@ -75,6 +73,18 @@ function asignar_tarea ($id_objetivo, $id_tarea, $nombre_tarea)
     $tarea_n->peso = 1;
     $DB->insert_record( tarea, $tarea_n );
 }
+function asignar_quiz($id_objetivo, $id_quiz, $nombre_quiz)
+{
+    global $DB;
+
+    $quiz_n = new stdClass();
+    $quiz_n->id = mt_rand();
+    $quiz_n->$id_quiz = $id_quiz;
+    $quiz_n->id_objetivo = $id_objetivo;
+    $quiz_n->nombre = $nombre_quiz;
+    $quiz_n->peso = 1;
+    $DB->insert_record( quiz_asignados, $quiz_n );
+}
 function get_lista_objetivos()
 {
     global $DB;
@@ -109,7 +119,18 @@ function get_id_objetivo($curso_id, $nombre_obj)
 function esta_asignada_tarea($id_tarea)
 {
     global $DB;
+
+    // Contemplar si id_tarea es un quiz o actividad
+
     return $DB->record_exists('tarea', ['id_tarea' => $id_tarea]);
+}
+function esta_asignado_quiz($id_quiz)
+{
+    global $DB;
+
+    // Contemplar si id_tarea es un quiz o actividad
+
+    return $DB->record_exists('quiz_asignados', ['id_quiz' => $id_quiz]);
 }
 
 if ($form->is_cancelled()) {
@@ -129,16 +150,29 @@ if ($form->is_cancelled()) {
     // Obtener el id de una tarea (actividad/quiz) en base a la seleccion de la lista en el formulario.
     $lista_tareas = get_tareas($id_curso);
     $nombre_tarea = $lista_tareas[$pos_tarea];
-
     $id_act = get_id_actividad($nombre_tarea);
 
-    // Comprobar que la tarea no esta ya asignada.
-    if(esta_asignada_tarea($id_act)) {
-        //Notificacion para informar que ya se ha asignado una tarea
+    // Ruta 1:  Comprobamos que la tarea es un quiz.
+    if(check_if_quiz($nombre_tarea))
+    {
+        // 2. Comprobamos que no esta asignada ya en la tabla de objetivos - quiz ...
+        if(esta_asignado_quiz($id_act))
+        {
+            // No debemos meterla.
+        } else {
+            asignar_quiz($id_obj, $id_act, $nombre_tarea);
+        }
+    // Ruta 2: Ruta restante: La tarea es una actividad.
+    }else {
+        // Comprobar que la tarea no esta ya asignada.
+        if(esta_asignada_tarea($id_act)) {
+            //Notificacion para informar que ya se ha asignado una tarea
 
-    } else {
-        asignar_tarea($id_obj, $id_act, $nombre_tarea);
+        } else {
+            asignar_tarea($id_obj, $id_act, $nombre_tarea);
+        }
     }
+
      redirect(new moodle_url('/course/view.php?id=' . $id_curso . '/'));
 } else {
     // Display the form.

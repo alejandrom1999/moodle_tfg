@@ -58,10 +58,18 @@ function get_names_estudiantes()
 function numero_tareas($objetivo_id)
 {
     global $DB;
-    $numero = $DB->count_records_sql("
+    $numero = 0;
+    // Comprobamos y sumamos las tareas totales de ese objetivo tanto en la tabla de actividades como en la de quizes.
+    $numero += $DB->count_records_sql("
                     SELECT COUNT(*) 
                     FROM {tarea} t 
                     WHERE t.id_objetivo = $objetivo_id");
+
+    $numero += $DB->count_records_sql("
+                    SELECT COUNT(*) 
+                    FROM {quiz_asignados} q 
+                    WHERE q.id_objetivo = $objetivo_id");
+
 
     return $numero;
 }
@@ -74,7 +82,7 @@ function get_id_objetivo($nombre_obj): string {
     $sal1 = '';
     foreach ($sql_1 as $n)
     {
-        if($n->nombre === $nombre_obj){
+        if(strcmp($n->nombre,$nombre_obj) == 0) {
             $sal1 = $n->id;
         }
     }
@@ -84,16 +92,24 @@ function get_id_objetivo($nombre_obj): string {
 function tarea_objetivo_n($nombre_objetivo)
 {
     global $DB;
-
+    // 0. Obtenemos el id del objetivo.
     $id = get_id_objetivo($nombre_objetivo);
 
-    $tareas = $DB->get_records('tarea', array('id_objetivo' => $id));
+    // 1. Incluimos las tareas que sean actividades
+    $tareas_actividades = $DB->get_records('tarea', array('id_objetivo' => $id));
 
     $arr_tarea = array();
     $i = 0;
 
-    foreach($tareas as $nom) {
+    foreach($tareas_actividades as $nom) {
         $arr_tarea[$i++] = $nom->nombre;
+    }
+
+    // 2. Incluimos a la lista las tareas que sean quizes.
+    $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
+
+    foreach($tareas_quizes as $tar) {
+        $arr_tarea[$i++] = $tar->nombre;
     }
 
     return $arr_tarea;
@@ -103,10 +119,17 @@ function get_id_actividad($nombre_actividad)
 {
     global $DB;
 
-    $records_assign = $DB->get_records('assign');
-    foreach ($records_assign as $record)
+    // Comprobar si la actividad es un quiz o un assign:
+    if($DB->record_exists('quiz', array('name' => $nombre_actividad)))
     {
-        if($record->name === $nombre_actividad)
+        $records = $DB->get_records('quiz');
+    } else {
+        $records = $DB->get_records('assign');
+    }
+
+    foreach ($records as $record)
+    {
+        if(strcmp($record->name,$nombre_actividad) == 0)
         {
             $sal1 = $record->id;
         }
@@ -114,21 +137,33 @@ function get_id_actividad($nombre_actividad)
 
     return $sal1;
 }
-function get_status_tarea_usuario($user, $assignment_name)
+function get_status_tarea_usuario($user_id, $assignment_name)
 {
     global $DB;
-
     $id_tar = get_id_actividad($assignment_name);
 
-    $sql = "SELECT * 
-                    FROM {assign_grades} as_s
-                    WHERE as_s.userid = $user 
+    // 1. Miramos que tipo de tarea es: Quiz o Actividad.
+    if($DB->record_exists('quiz', array('name' => $assignment_name)))
+    {
+        $sql = "SELECT * 
+                    FROM {quiz_grades} as_s
+                    WHERE as_s.userid = $user_id 
                     AND
-                    as_s.assignment = $id_tar
+                    as_s.quiz = $id_tar
                     AND
                     as_s.grade >= 50 ";
 
-    return $DB->record_exists_sql($sql);;
+    } else {
+        $sql = "SELECT * 
+                FROM {assign_grades} as_s
+                WHERE as_s.userid = $user_id 
+                AND
+                as_s.assignment = $id_tar
+                AND
+                as_s.grade >= 50 ";
+    }
+
+    return $DB->record_exists_sql($sql);
 }
 function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
 {
@@ -136,6 +171,8 @@ function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
     $tareas_hechas = 0;
     $id_objetivo = get_id_objetivo($objetivo_nombre); // id del objetivo
     $numero_tareas_objetivo = numero_tareas($id_objetivo); // numero de tareas del objetivo
+
+
 
     if($numero_tareas_objetivo == 0)
     {
@@ -146,7 +183,9 @@ function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
 
     foreach ($tareas as $t)
     {
-        if(get_status_tarea_usuario($usuario_id, $t) == 1)
+
+        // Comprobamos que la tarea se ha completado o no.
+        if(get_status_tarea_usuario($usuario_id, $t) == 1 )
         {
             $tareas_hechas++;
         }
@@ -169,7 +208,6 @@ function nombres_objetivos()
     }
     return $objetivos;
 }
-
 function progreso_objetivos()
 {
     global $DB;
@@ -188,16 +226,18 @@ function progreso_objetivos()
         $objetivos1['nombre_estudiante'] = $nombres_estudiantes[$i];
         foreach ($nombres_objetivos as $nombre_objetivo_n) {
             $progreso = array();
+
             $progreso['progreso_user'] =  porcentaje_objetivo_usuario($nombre_objetivo_n->nombre,$id_est);
             $objetivos1['progreso'][$j++] = $progreso;
         }
+
         $objetivos2[$i++] = $objetivos1;
     }
 
 
+
     return $objetivos2 ;
 }
-
 
 echo $OUTPUT->header();
 
@@ -205,14 +245,13 @@ $templatename = 'block_objetivos/vista_profesor';
 $datos = [];
 
 
-
 $nombres_objetivos = nombres_objetivos();
-
 $progreso = progreso_objetivos();
 
 
 $datos['nombres_objetivos'] =  $nombres_objetivos;
 $datos['progreso'] = $progreso;
+
 echo $OUTPUT->render_from_template($templatename, $datos);
 
 echo $OUTPUT->footer();

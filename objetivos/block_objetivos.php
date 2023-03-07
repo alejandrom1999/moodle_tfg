@@ -4,8 +4,7 @@
 class block_objetivos extends block_base {
 
     public function init() {
-        global $DB,$COURSE;
-        $DB->delete_records('objetivo', array('id' => 5));
+        global $DB;
 
         $this->title = get_string('objetivos', 'block_objetivos');
     }
@@ -39,6 +38,7 @@ class block_objetivos extends block_base {
 
             $tareas = tarea_objetivo_n($objetivo_nombre); // tareas del objetivo
 
+
             foreach ($tareas as $t)
             {
                 // Comprobamos que la tarea se ha completado o no.
@@ -52,17 +52,18 @@ class block_objetivos extends block_base {
         }
         function porcentaje_curso_usuario($usuario_id)
         {
-            global $DB;
-
             global $DB, $COURSE;
             $sql1 = "SELECT b_o.nombre
-                 FROM {objetivo} b_o
-                 WHERE b_o.id_course = $COURSE->id";
+                     FROM {objetivo} b_o
+                     WHERE b_o.id_course = $COURSE->id";
 
             $nombres = $DB->get_records_sql($sql1); // Obtenemos los nombes de los objetivos
+
             $num_objetivos = 0;
             $porcentaje_total = 0;
             // Contamos el numero de objetivos que hay y el porcentaje de cada objetivo de ese usuario.
+
+
             foreach ($nombres as $n)
             {
                 $num_objetivos++;
@@ -81,11 +82,16 @@ class block_objetivos extends block_base {
         function numero_tareas($objetivo_id)
         {
             global $DB;
-
+            // Comprobamos y sumamos las tareas totales de ese objetivo tanto en la tabla de actividades como en la de quizes.
             $numero = $DB->count_records_sql("
                     SELECT COUNT(*) 
                     FROM {tarea} t 
                     WHERE t.id_objetivo = $objetivo_id");
+
+            $numero += $DB->count_records_sql("
+                    SELECT COUNT(*) 
+                    FROM {quiz_asignados} q 
+                    WHERE q.id_objetivo = $objetivo_id");
 
             return $numero;
          }
@@ -102,7 +108,6 @@ class block_objetivos extends block_base {
 
             $objetivos = array();
             $i = 0;
-
 
             foreach($nombres as $nom) {
                 $objetivo = array();
@@ -137,21 +142,25 @@ class block_objetivos extends block_base {
         /*TAREAS DE UN OBJETIVO EN CONCRETO*/
         function tarea_objetivo_n($nombre_objetivo)
         {
-           global $DB;
+            global $DB;
+            // 0. Obtenemos el id del objetivo.
+            $id = get_id_objetivo($nombre_objetivo);
 
-           $id = get_id_objetivo($nombre_objetivo);
-
-           $sql2 = "SELECT t.nombre
-                 FROM {tarea} t
-                 WHERE t.id_objetivo = $id";
-
-            $tareas = $DB->get_records_sql($sql2);
+            // 1. Incluimos las tareas que sean actividades
+            $tareas_actividades = $DB->get_records('tarea', array('id_objetivo' => $id));
 
             $arr_tarea = array();
             $i = 0;
 
-            foreach($tareas as $nom) {
+            foreach($tareas_actividades as $nom) {
                 $arr_tarea[$i++] = $nom->nombre;
+            }
+
+            // 2. Incluimos a la lista las tareas que sean quizes.
+            $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
+
+            foreach($tareas_quizes as $tar) {
+                $arr_tarea[$i++] = $tar->nombre;
             }
 
             return $arr_tarea;
@@ -166,21 +175,14 @@ class block_objetivos extends block_base {
             // Comprobar si la actividad es un quiz o un assign:
             if($DB->record_exists('quiz', array('name' => $nombre_actividad)))
             {
-                $records_quiz = $DB->get_records('quiz');
-                foreach ($records_quiz as $record)
-                {
-                    if($record->name === $nombre_actividad)
-                    {
-                        $sal1 = $record->id;
-                    }
-                }
-                return $sal1;
+                $records = $DB->get_records('quiz');
+            } else {
+                $records = $DB->get_records('assign');
             }
 
-            $records_assign = $DB->get_records('assign');
-            foreach ($records_assign as $record)
+            foreach ($records as $record)
             {
-                if($record->name === $nombre_actividad)
+                if(strcmp($record->name,$nombre_actividad) == 0)
                 {
                     $sal1 = $record->id;
                 }
@@ -214,6 +216,8 @@ class block_objetivos extends block_base {
             global $DB;
 
             $id_tar = get_id_actividad($assignment_name);
+
+
 
             if($DB->record_exists('quiz', array('id' => $id_tar)))
             {
