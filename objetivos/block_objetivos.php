@@ -80,7 +80,7 @@ class block_objetivos extends block_base {
         }
         function porcentaje_curso_usuario($usuario_id)
         {
-            global $DB, $COURSE;
+            global $DB, $COURSE, $USER;
             $sql1 = "SELECT b_o.nombre
                      FROM {objetivo} b_o
                      WHERE b_o.id_course = $COURSE->id";

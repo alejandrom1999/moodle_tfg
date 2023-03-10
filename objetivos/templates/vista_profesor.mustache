@@ -1,49 +1,77 @@
-<style>
-table {
-  table-layout: fixed;
-  width: 100%;
-  border: 1px solid #000;
-}
-th, td {
-  padding: 20px;
-  border: 1px solid #000;
-}
-</style>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TABLA RESUMEN PROGRESO ALUMNOS</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('th').click(function() {
+          var table = $(this).parents('table').eq(0);
+          var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+          this.asc = !this.asc;
+          if (!this.asc) {
+            rows = rows.reverse();
+          }
+          for (var i = 0; i < rows.length; i++) {
+            table.append(rows[i]);
+          }
+        });
 
+        function comparer(index) {
+          return function(a, b) {
+            var valA = getCellValue(a, index);
+            var valB = getCellValue(b, index);
+            return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB);
+          }
+        }
 
-<table>
-  <thead>
-    <tr>
-        <th scope="col">Estudiante</th>
-        {{#nombres_objetivos}}
-            {{#nombre_objetivo}}
-                <th scope="col"> {{nombre_objetivo}} </th>
-            {{/nombre_objetivo}}
+        function getCellValue(row, index) {
+          return $(row).children('td').eq(index).text();
+        }
+      });
+    </script>
+    <style>
+      table {
+        table-layout: fixed;
+        width: 100%;
+        border: 1px solid #000;
+      }
+      th, td {
+        padding: 20px;
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Estudiante</th>
+          {{#nombres_objetivos}}
+              {{#nombre_objetivo}}
+                <th scope="col" data-orden="{{@index}}">{{nombre_objetivo}}</th>
+              {{/nombre_objetivo}}
+          {{/nombres_objetivos}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#progreso}}
+        <tr>
+          <td scope="row">{{nombre_estudiante}}</td>
+          {{#progreso}}
+              {{#progreso_user}}
+                <td>{{progreso_user}}%</td>
+              {{/progreso_user}}
 
-        {{/nombres_objetivos}}
-    </tr>
-  </thead>
-
-
-  <tbody>
-
-  {{#progreso}}
-    <tr>
-      <td scope="row">{{nombre_estudiante}}</td>
-      {{#progreso}}
-
-        {{#progreso_user}}
-            <td>{{progreso_user}}%</td>
-        {{/progreso_user}}
-
-        {{^progreso_user}}
-            <td>0%</td>
-        {{/progreso_user}}
-
-      {{/progreso}}
-    </tr>
-    {{/progreso}}
-  </tbody>
-
-
-</table>
+              {{^progreso_user}}
+                <td>0%</td>
+              {{/progreso_user}}
+          {{/progreso}}
+        </tr>
+        {{/progreso}}
+      </tbody>
+    </table>
+  </body>
+</html>
