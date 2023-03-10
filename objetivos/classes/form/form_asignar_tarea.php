@@ -80,14 +80,16 @@ class form_asignar_tarea extends moodleform {
 
         // Texto objetivo
         $mform->addElement('text', 'peso', 'Introduce el peso del objetivo');
-        $mform->setDefault('peso', 'Ejemplo: 20,30 (porcentajes) ');
+        $mform->setDefault('peso', 'Ejemplo: 10,20 (porcentajes) ');
 
 
         $mform->addElement('hidden', 'id_curso', 'campo oculto');
         $mform->setDefault('id_curso', $id_curso);
 
 
-        if(!in_array('No', $objetivos_curso) && !in_array('No', $tareas_curso))
+        if(in_array('No', $objetivos_curso) || in_array('No', $tareas_curso)) {
+
+        }else
             $this->add_action_buttons($cancel = true, 'Asignar tarea a objetivo');
     }
 

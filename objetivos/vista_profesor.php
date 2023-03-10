@@ -7,53 +7,21 @@ $PAGE->set_title('Vista resumen objetivos del curso');
 $PAGE->set_heading('Progreso alumnos');
 
 // FUNCIONES
-function get_user_ids_estudiantes() {
+function get_user_data_estudiantes() {
     global $DB;
 
-    // Usuarios que sean estudiantes.
-    $users = $DB->get_records('role_assignments', array('roleid' => 5));
+    // Usuarios que sean estudiantes.z
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
 
-    $arr_users = array();
-    $i = 0;
+    // Obtenemos solo los estudiantes matriculados en el curso actual.
+    $sql = "SELECT u.id, u.firstname
+            FROM mdl_user u
+            INNER JOIN mdl_user_enrolments ue ON ue.userid = u.id
+            INNER JOIN mdl_enrol e ON e.id = ue.enrolid
+            INNER JOIN mdl_role_assignments r_a ON r_a.userid = ue.userid && r_a.roleid = 5
+            WHERE e.courseid = $id_curso";
 
-    foreach ($users as $us)
-    {
-        if(!in_array($us->userid, $arr_users))
-            $arr_users[$i++] = $us->userid;
-    }
-
-    return $arr_users;
-}
-function get_names_estudiantes()
-{
-    global $DB;
-    // 1. Obtenemos todos los usuarios.
-    $tabla_user = $DB->get_records('user');
-
-    $user_ids = array();
-    $i = 0;
-    foreach ($tabla_user as $tabla_n)
-    {
-        // 2. Guardamos todos sus ids.
-        $user_ids[$i++] = $tabla_n->id;
-    }
-
-    // 3. Obtengo los ids de los estudiantes.
-    $ids_estudiantes = get_user_ids_estudiantes();
-
-
-    $i = 0;
-    $nombres = array();
-    // 4. Obtenemos los nombres
-    foreach ($tabla_user as $tabla_n)
-    {
-        if($tabla_n->id == $ids_estudiantes[$i])
-        {
-            $nombres[$i++] = $tabla_n->firstname;
-        }
-    }
-
-    return $nombres;
+    return $DB->get_records_sql($sql);
 }
 function numero_tareas($objetivo_id)
 {
@@ -73,7 +41,7 @@ function numero_tareas($objetivo_id)
 
     return $numero;
 }
-function get_id_objetivo($nombre_obj): string {
+function get_id_objetivo($nombre_obj){
     global $DB;
 
     $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
@@ -152,7 +120,6 @@ function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
     $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
     $numero_tareas_objetivo = numero_tareas($id); // numero de tareas del objetivo
 
-
     if($numero_tareas_objetivo == 0)
     {
         return 0;
@@ -160,19 +127,20 @@ function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
     // Parte de actividades.
     foreach($tareas_actividades as $nom) {
 
-        $pesos_tareas_objetivo += $nom->peso;
-        if(get_status_tarea_usuario($usuario_id, $nom->nombre) == 1 )
+        $pesos_tareas_objetivo +=  $nom->peso;
+
+        if(get_status_tarea_usuario($usuario_id, $nom->nombre) == 1)
         {
             $pesos_tarea_completada += $nom->peso;
+
         }
     }
-
 
     foreach($tareas_quizes as $tar) {
         $pesos_tareas_objetivo += $nom->peso;
         if(get_status_tarea_usuario($usuario_id, $tar->nombre) == 1 )
         {
-            $pesos_tarea_completada += $tar->peso;
+            $pesos_tarea_completada += $nom->peso;
         }
     }
 
@@ -200,20 +168,20 @@ function progreso_objetivos()
     $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
 
     $nombres_objetivos = $DB->get_records('objetivo', array('id_course' => $id_curso));
-    $ids_estudiantes = get_user_ids_estudiantes();
-    $nombres_estudiantes = get_names_estudiantes();
+    $datos_estudiantes = get_user_data_estudiantes();
+
 
     $objetivos2 = array();
     $i = 0;
-    foreach ($ids_estudiantes as $id_est)
+    foreach ($datos_estudiantes as $valor_i)
     {
         $j = 0;
         $objetivos1 = array();
-        $objetivos1['nombre_estudiante'] = $nombres_estudiantes[$i];
+        $objetivos1['nombre_estudiante'] = $valor_i->firstname;
+
         foreach ($nombres_objetivos as $nombre_objetivo_n) {
             $progreso = array();
-
-            $progreso['progreso_user'] =  porcentaje_objetivo_usuario($nombre_objetivo_n->nombre,$id_est);
+            $progreso['progreso_user'] =  porcentaje_objetivo_usuario($nombre_objetivo_n->nombre,$valor_i->id);
             $objetivos1['progreso'][$j++] = $progreso;
         }
 
@@ -232,6 +200,7 @@ $datos = [];
 
 
 $nombres_objetivos = nombres_objetivos();
+
 $progreso = progreso_objetivos();
 
 

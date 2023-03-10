@@ -24,6 +24,20 @@ class block_objetivos extends block_base {
         if ($this->content !== null) {
             return $this->content;
         }
+
+        function get_user_data_estudiantes() {
+            global $DB, $COURSE;
+
+            // Obtenemos solo los estudiantes matriculados en el curso actual.
+            $sql = "SELECT u.id, u.firstname
+                    FROM mdl_user u
+                    INNER JOIN mdl_user_enrolments ue ON ue.userid = u.id
+                    INNER JOIN mdl_enrol e ON e.id = ue.enrolid
+                    INNER JOIN mdl_role_assignments r_a ON r_a.userid = ue.userid && r_a.roleid = 5
+                    WHERE e.courseid = $COURSE->id";
+
+            return $DB->get_records_sql($sql);
+        }
         function porcentaje_objetivo_usuario($objetivo_nombre, $usuario_id)
         {
 
@@ -91,7 +105,19 @@ class block_objetivos extends block_base {
 
             return round($porcentaje_total/$num_objetivos,2);;
         }
+        function porcentaje_curso_media()
+        {
+            $estudiantes_datos = get_user_data_estudiantes();
+            $porcentaje_media = 0.0;
+            $num_estudiantes = 0;
+            foreach($estudiantes_datos as $estudiante)
+            {
+                $num_estudiantes++;
+                $porcentaje_media += porcentaje_curso_usuario($estudiante->id);
+            }
 
+            return round($porcentaje_media/$num_estudiantes, 2);
+        }
         /* Numero de tareas de un objetivo */
         function numero_tareas($objetivo_id)
         {
@@ -109,7 +135,6 @@ class block_objetivos extends block_base {
 
             return $numero;
          }
-
         /*Lista de objetivos del curso*/
         function lista_objetivos()
         {
@@ -118,24 +143,32 @@ class block_objetivos extends block_base {
                  FROM {objetivo} b_o
                  WHERE b_o.id_course = $COURSE->id";
 
-            $nombres = $DB->get_records_sql($sql1);
-
+            $nombres_objetivos = $DB->get_records_sql($sql1);
             $objetivos = array();
             $i = 0;
+            $students = get_user_data_estudiantes();
 
-            foreach($nombres as $nom) {
+            foreach($nombres_objetivos as $nom) {
                 $objetivo = array();
+                $num_users = 0;
+                $media = 0.0;
                 $objetivo['nombre'] = $nom->nombre;
                 $objetivo['progreso_objetivo'] = porcentaje_objetivo_usuario($nom->nombre, $USER->id);
+
+                foreach($students as $std)
+                {
+                    $media += porcentaje_objetivo_usuario($nom->nombre, $std->id);
+                    $num_users++;
+                }
+                $objetivo['media'] = $media/$num_users;
                 $objetivos[$i++] = $objetivo;
             }
 
-
             return $objetivos;
         }
-
         /*Obtener el id de un objetivo a partir de su nombre*/
-        function get_id_objetivo($nombre_obj): string {
+        function get_id_objetivo($nombre_obj)
+        {
             global $DB, $COURSE;
             $sql = " SELECT *
                      FROM {objetivo} o 
@@ -149,38 +182,8 @@ class block_objetivos extends block_base {
                     $sal1 = $n->id;
                 }
             }
-
             return $sal1;
         }
-
-        /*TAREAS DE UN OBJETIVO EN CONCRETO*/
-        function tarea_objetivo_n($nombre_objetivo)
-        {
-            global $DB;
-            // 0. Obtenemos el id del objetivo.
-            $id = get_id_objetivo($nombre_objetivo);
-
-            // 1. Incluimos las tareas que sean actividades
-            $tareas_actividades = $DB->get_records('tarea', array('id_objetivo' => $id));
-
-            $arr_tarea = array();
-            $i = 0;
-
-            foreach($tareas_actividades as $nom) {
-                $arr_tarea[$i++] = $nom->nombre;
-            }
-
-            // 2. Incluimos a la lista las tareas que sean quizes.
-            $tareas_quizes = $DB->get_records('quiz_asignados', array('id_objetivo' => $id));
-
-            foreach($tareas_quizes as $tar) {
-                $arr_tarea[$i++] = $tar->nombre;
-            }
-
-            return $arr_tarea;
-
-        }
-
         /*FUNCION QUE DEVUELVE LA ID DE UNA ACTIVIDAD EN BASE A SU NOMBRE*/
         function get_id_actividad($nombre_actividad)
         {
@@ -204,7 +207,6 @@ class block_objetivos extends block_base {
 
             return $sal1;
         }
-
         // Comprueba si el usuario actual es estudiante.
         function user_is_student()
         {
@@ -255,16 +257,15 @@ class block_objetivos extends block_base {
             return $DB->record_exists_sql($sql);
         }
 
-        $objetivos = lista_objetivos();
-
         $es_estudiante = user_is_student();
 
         if ($es_estudiante) {
             // Vista del estudiante.
             $data['vista_profe'] = false;
             $data['vista_estudiante'] = true;
-            $data['objetivos'] = $objetivos;
+            $data['objetivos'] = lista_objetivos();
             $data['progreso_curso'] = porcentaje_curso_usuario($USER->id);
+            $data['media_curso'] = porcentaje_curso_media();
         } else {
             // Vista del Profesor.
             $data['vista_profe'] = true;

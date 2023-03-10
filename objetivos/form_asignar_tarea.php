@@ -71,7 +71,7 @@ function asignar_tarea ($id_objetivo, $id_tarea, $nombre_tarea, $peso)
     $tarea_n->id_objetivo = $id_objetivo;
     $tarea_n->nombre = $nombre_tarea;
     $tarea_n->peso = $peso;
-    $DB->insert_record( tarea, $tarea_n );
+    $DB->insert_record( 'tarea', $tarea_n );
 }
 function asignar_quiz($id_objetivo, $id_quiz, $nombre_quiz, $peso)
 {
@@ -83,7 +83,7 @@ function asignar_quiz($id_objetivo, $id_quiz, $nombre_quiz, $peso)
     $quiz_n->id_objetivo = $id_objetivo;
     $quiz_n->nombre = $nombre_quiz;
     $quiz_n->peso = $peso;
-    $DB->insert_record( quiz_asignados, $quiz_n );
+    $DB->insert_record( 'quiz_asignados', $quiz_n );
 }
 function get_lista_objetivos()
 {
@@ -139,9 +139,16 @@ if ($form->is_cancelled()) {
 } else if ($data = $form->get_data()) {
     $pos_objetivo = $data->objetivo; // Posicion en el desplegable del formulario.
     $pos_tarea = $data->tarea; // Posicion en el desplegable del formulario.
-    $peso = $data->peso; // Porcentaje de peso del objetivo.
-    $peso /= 10;
+    $peso = intval($data->peso); // Porcentaje de peso del objetivo.
 
+    if($peso < 0)
+        $peso = 1;
+    else {
+        if($peso > 100)
+            $peso = 10;
+        else
+            $peso /= 10;
+    }
 
     $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
 

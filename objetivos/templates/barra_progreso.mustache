@@ -44,20 +44,33 @@
       <div class="w3-light-grey w3-round-large" id="style_progress">
         <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_curso}}%">{{progreso_curso}}%</div>
       </div>
+
+      <div>Media total del curso: </div>
+
+      <div class="w3-light-grey w3-round-large" id="style_progress">
+        <div class="w3-container w3-blue w3-round-large" style="width:{{media_curso}}%">{{media_curso}}%</div>
+      </div>
+
   {{/vista_estudiante}}
 
+  <br>
   <br>
 
   <b> Objetivos </b>
 
   {{#objetivos}}
       <ul>
+
         <li> {{nombre}} </li>
         <div class="w3-light-grey w3-round-large" id="style_progress">
-          <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%">
-            {{progreso_objetivo}}%
-          </div>
+          <div class="w3-container w3-blue w3-round-large" style="width:{{progreso_objetivo}}%"> {{progreso_objetivo}}% </div>
         </div>
+
+        <div> Media curso del objetivo: </div>
+        <div class="w3-light-grey w3-round-large" id="style_progress">
+          <div class="w3-container w3-blue w3-round-large" style="width:{{media}}%"> {{media}}% </div>
+        </div>
+
       </ul>
   {{/objetivos}}
 
