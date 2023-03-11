@@ -188,9 +188,80 @@ function progreso_objetivos()
         $objetivos2[$i++] = $objetivos1;
     }
 
-
-
     return $objetivos2 ;
+}
+
+function lista_porcentajes_medias()
+{
+    global $DB;
+
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+
+    $sql1 = "SELECT b_o.nombre
+                 FROM {objetivo} b_o
+                 WHERE b_o.id_course = $id_curso";
+
+    $nombres_objetivos = $DB->get_records_sql($sql1);
+    $objetivos = array();
+    $i = 0;
+    $students = get_user_data_estudiantes();
+
+    foreach($nombres_objetivos as $nom) {
+        $objetivo = array();
+        $num_users = 0;
+        $media = 0.0;
+
+        foreach($students as $std)
+        {
+            $media += porcentaje_objetivo_usuario($nom->nombre, $std->id);
+            $num_users++;
+        }
+        $objetivo['media'] = $media/$num_users;
+        $objetivos[$i++] = $objetivo;
+    }
+
+    return $objetivos;
+}
+function porcentaje_curso_usuario($usuario_id)
+{
+    global $DB;
+    $id_curso = optional_param('id_curso',' ', PARAM_TEXT);
+
+    $sql1 = "SELECT b_o.nombre
+                     FROM {objetivo} b_o
+                     WHERE b_o.id_course = $id_curso";
+
+    $nombres = $DB->get_records_sql($sql1); // Obtenemos los nombes de los objetivos
+
+    $num_objetivos = 0;
+    $porcentaje_total = 0;
+    // Contamos el numero de objetivos que hay y el porcentaje de cada objetivo de ese usuario.
+    foreach ($nombres as $n)
+    {
+        $num_objetivos++;
+        $porcentaje_total += porcentaje_objetivo_usuario($n->nombre,$usuario_id);
+
+    }
+
+    if($num_objetivos == 0)
+    {
+        return 0;
+    }
+
+    return round($porcentaje_total/$num_objetivos,2);;
+}
+function porcentaje_curso_media()
+{
+    $estudiantes_datos = get_user_data_estudiantes();
+    $porcentaje_media = 0.0;
+    $num_estudiantes = 0;
+    foreach($estudiantes_datos as $estudiante)
+    {
+        $num_estudiantes++;
+        $porcentaje_media += porcentaje_curso_usuario($estudiante->id);
+    }
+
+    return round($porcentaje_media/$num_estudiantes, 2);
 }
 
 echo $OUTPUT->header();
@@ -200,12 +271,15 @@ $datos = [];
 
 
 $nombres_objetivos = nombres_objetivos();
-
+$media_curso = porcentaje_curso_media();
 $progreso = progreso_objetivos();
+$medias_objetivos = lista_porcentajes_medias();
 
 
 $datos['nombres_objetivos'] =  $nombres_objetivos;
 $datos['progreso'] = $progreso;
+$datos['media_curso'] = $media_curso;
+$datos['medias_objetivos'] = $medias_objetivos;
 
 echo $OUTPUT->render_from_template($templatename, $datos);
 

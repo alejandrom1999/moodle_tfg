@@ -44,8 +44,33 @@
       }
     </style>
   </head>
+
   <body>
     <table>
+        <caption>Medias del curso </caption>
+        <thead>
+            <tr>
+              <th scope="col">Media Curso</th>
+              {{#nombres_objetivos}}
+                  {{#nombre_objetivo}}
+                    <th scope="col">{{nombre_objetivo}}</th>
+                  {{/nombre_objetivo}}
+              {{/nombres_objetivos}}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td scope="row">{{media_curso}}%</td>
+                {{#medias_objetivos}}
+                    <td>{{media}}%</td>
+                {{/medias_objetivos}}
+            </tr>
+        </tbody>
+	</table>
+
+
+    <table>
+      <caption>Medias de los estudiantes </caption>
       <thead>
         <tr>
           <th scope="col">Estudiante</th>
