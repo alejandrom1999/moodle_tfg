@@ -4,45 +4,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TABLA RESUMEN PROGRESO ALUMNOS</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-      $(document).ready(function() {
-        $('th').click(function() {
-          var table = $(this).parents('table').eq(0);
-          var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
-          this.asc = !this.asc;
-          if (!this.asc) {
-            rows = rows.reverse();
-          }
-          for (var i = 0; i < rows.length; i++) {
-            table.append(rows[i]);
-          }
-        });
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+          $(document).ready(function() {
+            $('th').click(function() {
+              var table = $(this).parents('table').eq(0);
+              var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+              this.asc = !this.asc;
+              if (!this.asc) {
+                rows = rows.reverse();
+              }
+              for (var i = 0; i < rows.length; i++) {
+                table.append(rows[i]);
+              }
 
-        function comparer(index) {
-          return function(a, b) {
-            var valA = getCellValue(a, index);
-            var valB = getCellValue(b, index);
-            return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB);
-          }
-        }
+              // Remover triángulo indicador de las demás columnas
+              $(this).siblings().removeClass('asc desc');
 
-        function getCellValue(row, index) {
-          return $(row).children('td').eq(index).text();
-        }
-      });
-    </script>
-    <style>
-      table {
-        table-layout: fixed;
-        width: 100%;
-        border: 1px solid #000;
-      }
-      th, td {
-        padding: 20px;
-        border: 1px solid #000;
-      }
-    </style>
+              // Agregar triángulo indicador a la columna ordenada
+              if (this.asc) {
+                $(this).removeClass('desc').addClass('asc');
+              } else {
+                $(this).removeClass('asc').addClass('desc');
+              }
+            });
+
+            function comparer(index) {
+              return function(a, b) {
+                var valA = getCellValue(a, index);
+                var valB = getCellValue(b, index);
+                return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB);
+              }
+            }
+
+            function getCellValue(row, index) {
+              return $(row).children('td').eq(index).text();
+            }
+          });
+        </script>
+        <style>
+
+          table {
+            table-layout: fixed;
+            width: 100%;
+            border: 1px solid #000;
+          }
+          th, td {
+            padding: 20px;
+            border: 1px solid #000;
+          }
+          th.asc::after {
+            content: " ▲";
+          }
+          th.desc::after {
+            content: " ▼";
+          }
+        </style>
   </head>
 
   <body>
