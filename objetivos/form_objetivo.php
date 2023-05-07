@@ -21,6 +21,10 @@ function insertar_objetivo($id_curso, $nombre)
     $DB->insert_record('objetivo' , $objetivo_n );
 }
 
+function get_data()
+{
+    return $form->get_data();
+}
 
 if ($form->is_cancelled())
 {
