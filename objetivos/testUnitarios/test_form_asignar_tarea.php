@@ -117,7 +117,4 @@ class test_form_asignar_tarea extends TestCase
         // Borramos el quiz de prueba
         $DB->delete_records('quiz_asignados', array('id' => $quiz->id));
     }
-  
-
-
 }
